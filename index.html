@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>R&amp;A Building</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f4f1ea; --card: #fbf9f4; --ink: #1f1d1a; --muted: #6b655c; --faint: #9a948a;
+    --line: #e3ddd1; --accent: #9e4831; --dark: #22201c; --sand: #e2cfae; --soft: #ece6db;
+    --serif: "Cormorant Garamond", Georgia, serif; --mono: ui-monospace, Menlo, monospace;
+    --h: var(--tg-viewport-stable-height, 100vh);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--paper); color: var(--ink); font: 14px/1.45 Inter, system-ui, sans-serif; overflow: hidden; }
+  .app { position: relative; height: var(--h); max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; }
+  .viewport { position: relative; flex: 1; overflow: hidden; }
+  .screen { position: absolute; inset: 0; background: var(--paper); opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+  .screen.on { opacity: 1; pointer-events: auto; }
+  .scroll { position: absolute; inset: 0; overflow-y: auto; padding: 0 18px 110px; -webkit-overflow-scrolling: touch; }
+
+  .eyebrow { font: 500 10.5px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
+  h1 { font: 600 34px/1.05 var(--serif); letter-spacing: -.2px; }
+  h2 { font: 600 28px/1.1 var(--serif); margin: 20px 0 4px; }
+  .lead { color: var(--muted); font-size: 13.5px; }
+  .sub { margin-top: 18px; font: 500 10.5px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
+
+  .hero { position: relative; margin: 0 -18px; padding: 26px 22px 22px; overflow: hidden; }
+  .hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hero > *:not(canvas) { position: relative; }
+  .logo { font: 600 40px/1 var(--serif); margin-bottom: 14px; } .logo i { color: var(--accent); font-weight: 500; margin: 0 -2px; }
+  .hero h1 { margin: 6px 0 8px; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px; min-height: 104px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; }
+  .tile:active, .svc:active, .addon:active { transform: scale(.985); }
+  .tile b { font-weight: 600; font-size: 14.5px; } .tile span { color: var(--muted); font-size: 12px; }
+  .tile.wide { grid-column: span 2; min-height: 0; flex-direction: row; align-items: center; gap: 12px; background: var(--dark); border-color: var(--dark); color: #f4f1ea; }
+  .tile.wide span { color: #b9b2a6; } .tile.wide .arrow { margin-left: auto; color: var(--sand); font-size: 18px; }
+  .ico { width: 30px; height: 30px; border-radius: 10px; background: var(--soft); display: grid; place-items: center; color: var(--accent); }
+  .tile.wide .ico { background: #34312c; color: var(--sand); }
+  .rowlink { margin-top: 14px; display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; padding: 12px 2px; border-top: 1px solid var(--line); }
+
+  .svc { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; margin-top: 10px; cursor: pointer; transition: transform .12s; }
+  .svc .top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .svc b { font-weight: 600; font-size: 15px; } .svc .p { font-weight: 600; white-space: nowrap; }
+  .svc .who { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+  .svc .term { margin-top: 8px; font: 500 10.5px var(--mono); color: var(--faint); letter-spacing: .08em; text-transform: uppercase; }
+
+  .backdrop { position: absolute; inset: 0; background: rgba(31,29,26,.35); opacity: 0; pointer-events: none; z-index: 10; transition: opacity .3s; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; height: 82%; background: var(--paper); border-radius: 24px 24px 0 0; transform: translateY(100%); z-index: 11; transition: transform .38s cubic-bezier(.25,.8,.25,1); }
+  .sheet-open .backdrop { opacity: 1; pointer-events: auto; } .sheet-open .sheet { transform: none; }
+  .sheet .grab { width: 38px; height: 5px; border-radius: 3px; background: var(--line); margin: 8px auto 0; }
+  .sheet .scroll { top: 18px; padding-bottom: 100px; }
+  .list { margin-top: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .list div { display: flex; justify-content: space-between; gap: 10px; padding: 11px 14px; border-top: 1px solid var(--line); font-size: 13.5px; }
+  .list div:first-child { border-top: 0; } .list .ok { justify-content: flex-start; gap: 0; } .list .ok::before { content: "✓"; color: var(--accent); margin-right: 8px; font-weight: 600; }
+  .list .k { color: var(--muted); } .list .v { font-weight: 600; white-space: nowrap; }
+  .box { margin-top: 12px; padding: 14px 16px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
+  .box span { color: var(--muted); font-size: 12.5px; } .box .sum { font: 600 22px var(--serif); color: var(--accent); margin-top: 2px; }
+
+  .cta { position: absolute; left: 14px; right: 14px; bottom: 14px; height: 52px; border-radius: 16px; border: 0; background: var(--dark); color: #f4f1ea; font: 600 15px Inter; cursor: pointer; z-index: 5; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .chip { padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); font-size: 13px; cursor: pointer; transition: background .15s, color .15s; }
+  .chip.on { background: var(--dark); color: #f4f1ea; border-color: var(--dark); }
+  .slider { margin-top: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px 12px; }
+  .slider .lab { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; } .slider .lab b { font-weight: 600; font-size: 15px; }
+  .slider input { width: 100%; margin-top: 12px; accent-color: var(--accent); }
+  .addons { margin-top: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .addon { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-top: 1px solid var(--line); cursor: pointer; }
+  .addon:first-child { border-top: 0; } .addon .n { flex: 1; font-size: 13.5px; } .addon .v { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+  .sw { width: 42px; height: 26px; border-radius: 13px; background: var(--soft); position: relative; flex: none; transition: background .2s; }
+  .sw i { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .2s; }
+  .addon.on .sw { background: var(--accent); } .addon.on .sw i { transform: translateX(16px); }
+  .calcbar { position: absolute; left: 14px; right: 14px; bottom: 14px; height: 68px; border-radius: 20px; background: var(--dark); color: #f4f1ea;
+             display: flex; align-items: center; padding: 0 9px 0 18px; z-index: 5; box-shadow: 0 10px 24px rgba(31,29,26,.25); }
+  .calcbar .sum { font: 600 27px/1 var(--serif); } .calcbar .t { font-size: 11.5px; color: #b9b2a6; margin-top: 3px; }
+  .calcbar button { margin-left: auto; height: 50px; padding: 0 16px; border-radius: 14px; border: 0; background: var(--sand); color: var(--dark); font: 600 14px Inter; cursor: pointer; }
+
+  .proj { margin-top: 12px; padding: 16px; border-radius: 18px; background: var(--dark); color: #f4f1ea; }
+  .proj .eyebrow { color: #a69f93; } .proj h3 { font: 600 23px/1.1 var(--serif); margin-top: 6px; } .proj p { color: #b9b2a6; font-size: 13px; margin-top: 6px; }
+  .stages { margin-top: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 4px 14px; opacity: .55; }
+  .stage { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+  .stage:first-child { border-top: 0; } .stage .dot { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line); flex: none; }
+
+  .tabs { flex: none; display: flex; border-top: 1px solid var(--line); background: var(--card); padding: 6px 0 calc(6px + env(safe-area-inset-bottom)); }
+  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; color: var(--faint); cursor: pointer; padding: 4px 0; }
+  .tab.on { color: var(--ink); } .tab.on svg { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="viewport">
+    <section class="screen on" id="s-home"><div class="scroll">
+      <div class="hero"><canvas id="pattern"></canvas>
+        <div class="logo">R<i>&amp;</i>A</div>
+        <div class="eyebrow">R&amp;A Building · студия</div>
+        <h1>От сырой идеи до готового решения</h1>
+        <p class="lead">Сайты, приложения и Telegram-боты для бизнеса. Посчитайте стоимость за минуту.</p>
+      </div>
+      <div class="tiles">
+        <div class="tile" data-go="services"><span class="ico">◇</span><div><b>Услуги</b><br><span>что входит в цену</span></div></div>
+        <div class="tile" data-go="calc"><span class="ico">≈</span><div><b>Расчёт</b><br><span>цена и срок сразу</span></div></div>
+        <div class="tile" data-go="lead"><span class="ico">✎</span><div><b>Заявка</b><br><span>в чате бота</span></div></div>
+        <div class="tile" data-go="channel"><span class="ico">◎</span><div><b>Работы</b><br><span>кейсы в канале</span></div></div>
+        <div class="tile wide" data-go="project"><span class="ico">▤</span><div><b>Мой проект</b><br><span>этапы, демо и оплата</span></div><span class="arrow">›</span></div>
+      </div>
+      <div class="rowlink"><span>Отвечаем в течение часа</span><span>@xcrtyyx</span></div>
+    </div></section>
+
+    <section class="screen" id="s-services"><div class="scroll">
+      <h2>Услуги</h2><p class="lead">Нажмите, чтобы увидеть, что входит и что меняет цену.</p>
+      <div id="svc-list"></div>
+    </div></section>
+
+    <section class="screen" id="s-calc"><div class="scroll">
+      <h2>Расчёт стоимости</h2><p class="lead">Примерная цена по нашему прайсу. Точную назовём после созвона.</p>
+      <div class="sub">Что делаем</div><div class="chips" id="types"></div>
+      <div class="slider" id="slider"><div class="lab"><span id="sl-name"></span><b id="sl-val"></b></div><input type="range" id="range"></div>
+      <div class="sub">Дополнительно</div><div class="addons" id="addons"></div>
+    </div><div class="calcbar"><div><div class="sum" id="sum"></div><div class="t" id="term"></div></div><button id="send">Отправить в бот ›</button></div></section>
+
+    <section class="screen" id="s-project"><div class="scroll">
+      <h2>Мой проект</h2><p class="lead">Всё по вашему проекту в одном месте.</p>
+      <div class="proj"><div class="eyebrow">Скоро здесь</div><h3>Когда начнём работу, проект появится тут</h3>
+        <p>Этапы с датами, ссылка на тестовую версию после каждого обновления, оплата и дата следующего демо.</p></div>
+      <div class="stages"><div class="stage"><span class="dot"></span>Идея и созвон</div><div class="stage"><span class="dot"></span>ТЗ и прототип</div>
+        <div class="stage"><span class="dot"></span>Разработка</div><div class="stage"><span class="dot"></span>Проверка вместе</div><div class="stage"><span class="dot"></span>Запуск</div></div>
+    </div><button class="cta" data-go="calc">Начать с расчёта</button></section>
+
+    <div class="backdrop" id="backdrop"></div>
+    <div class="sheet" id="sheet"><div class="grab"></div><div class="scroll" id="sheet-body"></div><button class="cta" id="sheet-cta">Рассчитать стоимость</button></div>
+  </div>
+
+  <nav class="tabs">
+    <div class="tab on" data-tab="home"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 11l8-7 8 7v9H4z"/></svg>Главная</div>
+    <div class="tab" data-tab="services"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>Услуги</div>
+    <div class="tab" data-tab="calc"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6M9 13h2M13 13h2M9 17h2M13 17h2"/></svg>Расчёт</div>
+    <div class="tab" data-tab="project"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h10M4 18h6"/></svg>Проект</div>
+  </nav>
+</div>
+
+<script>
+const BOT = 'ra_design_build_bot', CHANNEL = 'https://t.me/ra_design_build';
+const tg = window.Telegram?.WebApp;
+const $ = s => document.querySelector(s);
+const rub = n => Math.round(n).toLocaleString('ru-RU') + ' ₽';
+const haptic = () => tg?.HapticFeedback?.selectionChanged?.();
+
+if (tg) {
+  tg.ready(); tg.expand();
+  tg.setHeaderColor?.('#f4f1ea'); tg.setBackgroundColor?.('#f4f1ea'); tg.setBottomBarColor?.('#fbf9f4');
+}
+
+// Открыть ссылку Telegram: внутри мини-приложения – штатно, в браузере – новой вкладкой
+function openTg(url) { tg?.openTelegramLink ? tg.openTelegramLink(url) : window.open(url, '_blank'); }
+
+let PR, S = { type: 'corp', count: 5, on: new Set() };
+const typeOf = () => PR.types.find(t => t.id === S.type);
+const addonsFor = () => PR.addons.filter(a => (!a.only || a.only.includes(S.type)) && (!a.not || !a.not.includes(S.type)));
+const addonPrice = a => a.priceBy?.[S.type] ?? a.price;
+// Та же формула, что в боте (bot.py: calc_total)
+function total() {
+  const t = typeOf();
+  let sum = t.base + (t.unit ? Math.max(0, S.count - t.incl) / t.step * t.per : 0);
+  for (const a of addonsFor()) if (S.on.has(a.id) && a.price) sum += addonPrice(a);
+  if (S.on.has('urgent')) sum *= 1.3;
+  return Math.floor(sum / 1000 + .5) * 1000;
+}
+
+function renderCalc() {
+  const t = typeOf();
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.type === S.type));
+  $('#slider').style.display = t.unit ? '' : 'none';
+  if (t.unit) {
+    const r = $('#range');
+    r.min = t.min; r.max = t.max; r.step = t.step; S.count = Math.min(t.max, Math.max(t.min, S.count)); r.value = S.count;
+    $('#sl-name').textContent = t.unit + (S.count > t.incl ? ` · сверх ${t.incl}: +${rub(t.per)} за ${t.step > 1 ? t.step : 'каждую'}` : ` · ${t.incl} входит в цену`);
+    $('#sl-val').textContent = S.count;
+  }
+  const vis = addonsFor();
+  for (const id of [...S.on]) if (!vis.some(a => a.id === id)) S.on.delete(id);
+  $('#addons').innerHTML = vis.map(a => `<div class="addon${S.on.has(a.id) ? ' on' : ''}" data-addon="${a.id}"><span class="n">${a.name}</span>
+    <span class="v">${a.pct ? '+' + a.pct + '%' : '+' + rub(addonPrice(a))}</span><span class="sw"><i></i></span></div>`).join('');
+  $('#sum').textContent = rub(total());
+  $('#term').textContent = 'примерно · ' + t.term + (S.on.has('urgent') ? ', быстрее на треть' : '');
+}
+
+function drawPattern() {
+  const c = $('#pattern'), r = c.getBoundingClientRect(), k = 2;
+  c.width = r.width * k; c.height = r.height * k;
+  const g = c.getContext('2d'), W = c.width, H = c.height, cell = 11 * k;
+  let seed = 7; const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
+  g.font = `500 ${cell * .85}px ui-monospace, Menlo, monospace`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  for (let y = cell / 2; y < H; y += cell) for (let x = cell / 2; x < W; x += cell) {
+    const p = Math.max(0, 1 - y / H * 1.5) * Math.min(1, .15 + x / W * 1.2) * (.55 + .45 * Math.sin(x / W * 9 + y / H * 4));
+    if (rnd() > p) continue;
+    g.fillStyle = `rgba(122,113,101,${.15 + rnd() * .3})`; g.fillText('0055SSxX+*.:'[Math.floor(rnd() * 12)], x, y);
+  }
+}
+
+let cur = 'home';
+function go(id) {
+  if (id === 'channel') return openTg(CHANNEL);
+  if (id === 'lead') { openTg(`https://t.me/${BOT}?start=lead`); return tg?.close(); }
+  if (id === cur) return;
+  if (id === 'calc') renderCalc();
+  $('#s-' + cur).classList.remove('on'); $('#s-' + id).classList.add('on');
+  cur = id; document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === id));
+  haptic();
+}
+function openSheet(id) {
+  const s = PR.services.find(x => x.id === id);
+  $('#sheet-body').innerHTML = `<div class="eyebrow">${s.term}</div><h2 style="margin-top:6px">${s.name}</h2><p class="lead">${s.desc}</p>
+    <div class="box"><span>Базовая цена</span><div class="sum">${s.price}</div></div>
+    <div class="sub">Входит в цену</div><div class="list">${s.inc.map(i => `<div class="ok">${i}</div>`).join('')}</div>
+    ${s.extra.length ? `<div class="sub">Цену увеличивает</div><div class="list">${s.extra.map(([k, v]) => `<div><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}</div>` : ''}`;
+  $('#sheet').dataset.calc = s.calc; $('#sheet-body').scrollTop = 0;
+  $('#app').classList.add('sheet-open'); haptic();
+}
+const closeSheet = () => $('#app').classList.remove('sheet-open');
+
+// Расчёт уходит в бота через стартовую ссылку: calc_<тип>_<кол-во>_<коды дополнений>
+function sendToBot() {
+  const t = typeOf(), codes = addonsFor().filter(a => S.on.has(a.id)).map(a => a.code).join('');
+  const payload = ['calc', t.id, t.unit ? S.count : 0, codes || 'x'].join('_');
+  tg?.HapticFeedback?.notificationOccurred?.('success');
+  openTg(`https://t.me/${BOT}?start=${payload}`);
+  tg?.close();
+}
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-go],[data-tab],[data-svc],[data-type],[data-addon],#send,#sheet-cta,#backdrop');
+  if (!el) return;
+  if (el.dataset.go) go(el.dataset.go);
+  else if (el.dataset.tab) go(el.dataset.tab);
+  else if (el.dataset.svc) openSheet(el.dataset.svc);
+  else if (el.dataset.type) { S.type = el.dataset.type; S.count = typeOf().incl || 0; renderCalc(); haptic(); }
+  else if (el.dataset.addon) { const id = el.dataset.addon; S.on.has(id) ? S.on.delete(id) : S.on.add(id); renderCalc(); haptic(); }
+  else if (el.id === 'send') sendToBot();
+  else if (el.id === 'sheet-cta') { S.type = $('#sheet').dataset.calc; S.count = typeOf().incl || 0; closeSheet(); go('calc'); }
+  else if (el.id === 'backdrop') closeSheet();
+});
+$('#range').addEventListener('input', e => { S.count = +e.target.value; renderCalc(); });
+
+fetch('prices.json').then(r => r.json()).then(p => {
+  PR = p;
+  $('#svc-list').innerHTML = PR.services.map(s => `<div class="svc" data-svc="${s.id}"><div class="top"><b>${s.name}</b><span class="p">${s.price}</span></div>
+    <div class="who">${s.who}</div><div class="term">${s.term}</div></div>`).join('');
+  $('#types').innerHTML = PR.types.map(t => `<div class="chip" data-type="${t.id}">${t.name}</div>`).join('');
+  const start = tg?.initDataUnsafe?.start_param || new URLSearchParams(location.search).get('open');
+  if (start === 'calc' || start === 'services' || start === 'project') go(start);
+  renderCalc();
+});
+document.fonts.ready.then(drawPattern);
+</script>
+</body>
+</html>
