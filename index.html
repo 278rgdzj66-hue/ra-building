@@ -66,6 +66,10 @@
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
   .chip { padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); font-size: 13px; cursor: pointer; transition: background .15s, color .15s; }
   .chip.on { background: var(--dark); color: #f4f1ea; border-color: var(--dark); }
+  .tgroup { margin-top: 12px; font-size: 11.5px; color: var(--faint); } .tgroup + .chips { margin-top: 6px; }
+  .incl { margin-top: 12px; color: var(--muted); font-size: 12.5px; }
+  .radio { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line); flex: none; position: relative; transition: border-color .2s; }
+  .addon.on .radio { border-color: var(--accent); } .addon.on .radio::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--accent); }
   .slider { margin-top: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px 12px; }
   .slider .lab { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; } .slider .lab b { font-weight: 600; font-size: 15px; }
   .slider input { width: 100%; margin-top: 12px; accent-color: var(--accent); }
@@ -118,9 +122,11 @@
 
     <section class="screen" id="s-calc"><div class="scroll">
       <h2>Расчёт стоимости</h2><p class="lead">Примерная цена по нашему прайсу. Точную назовём после созвона.</p>
-      <div class="sub">Что делаем</div><div class="chips" id="types"></div>
+      <div class="sub">Что делаем</div><div id="types"></div>
+      <div class="incl" id="incl"></div>
       <div class="slider" id="slider"><div class="lab"><span id="sl-name"></span><b id="sl-val"></b></div><input type="range" id="range"></div>
-      <div class="sub">Дополнительно</div><div class="addons" id="addons"></div>
+      <div id="vblock"><div class="sub">Вариант</div><div class="addons" id="variants"></div></div>
+      <div id="ablock"><div class="sub">Дополнительно</div><div class="addons" id="addons"></div></div>
     </div><div class="calcbar"><div><div class="sum" id="sum"></div><div class="t" id="term"></div></div><button id="send">Отправить в бот ›</button></div></section>
 
     <section class="screen" id="s-project"><div class="scroll">
@@ -158,35 +164,48 @@ if (tg) {
 // Открыть ссылку Telegram: внутри мини-приложения штатно, в браузере новой вкладкой
 function openTg(url) { tg?.openTelegramLink ? tg.openTelegramLink(url) : window.open(url, '_blank'); }
 
-let PR, S = { type: 'corp', count: 5, on: new Set() };
-const typeOf = () => PR.types.find(t => t.id === S.type);
-const addonsFor = () => PR.addons.filter(a => (!a.only || a.only.includes(S.type)) && (!a.not || !a.not.includes(S.type)));
-const addonPrice = a => a.priceBy?.[S.type] ?? a.price;
-// Та же формула, что в боте (bot.py: calc_total)
+// Каждая услуга сама описывает свой расчёт (поле calc): база, ползунок, варианты, допы
+let PR, S = { type: 'corp', count: 5, v: 0, on: new Set() };
+const typeOf = () => PR.services.find(s => s.id === S.type);
+const addonsFor = (id = S.type) => {
+  const opts = PR.services.find(s => s.id === id).calc.opts || [];
+  return PR.addons.filter(a => opts.includes(a.id));
+};
+const addonPrice = (a, id = S.type) => a.priceBy?.[id] ?? a.price;
+const variant = () => typeOf().calc.variants?.[S.v];
+const priceText = (n, c) => n ? rub(n) + (c.suffix || '') : 'бесплатно';
+function pick(id) { S.type = id; S.count = typeOf().calc.incl || 0; S.v = 0; }
+// Та же формула, что в боте (bot.py: parse_calc)
 function total() {
-  const t = typeOf();
-  let sum = t.base + (t.unit ? Math.max(0, S.count - t.incl) / t.step * t.per : 0);
+  const c = typeOf().calc;
+  let sum = c.variants ? variant().price : c.base + (c.unit ? Math.max(0, S.count - c.incl) / c.step * c.per : 0);
   for (const a of addonsFor()) if (S.on.has(a.id) && a.price) sum += addonPrice(a);
   if (S.on.has('urgent')) sum *= 1.3;
   return Math.floor(sum / 1000 + .5) * 1000;
 }
 
 function renderCalc() {
-  const t = typeOf();
-  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.type === S.type));
-  $('#slider').style.display = t.unit ? '' : 'none';
-  if (t.unit) {
+  const s = typeOf(), c = s.calc;
+  document.querySelectorAll('.chip').forEach(el => el.classList.toggle('on', el.dataset.type === S.type));
+  $('#incl').textContent = s.inc.length ? 'Входит: ' + s.inc.map(i => i[0].toLowerCase() + i.slice(1)).join(', ') : s.who;
+  $('#slider').style.display = c.unit ? '' : 'none';
+  if (c.unit) {
     const r = $('#range');
-    r.min = t.min; r.max = t.max; r.step = t.step; S.count = Math.min(t.max, Math.max(t.min, S.count)); r.value = S.count;
-    $('#sl-name').textContent = t.unit + (S.count > t.incl ? ` · сверх ${t.incl}: +${rub(t.per)} за ${t.step > 1 ? t.step : 'каждую'}` : ` · ${t.incl} входит в цену`);
+    r.min = c.min; r.max = c.max; r.step = c.step; S.count = Math.min(c.max, Math.max(c.min, S.count)); r.value = S.count;
+    $('#sl-name').textContent = c.unit + (S.count > c.incl ? ` · сверх ${c.incl}: +${rub(c.per)} за ${c.each}` : ` · ${c.incl} входит в цену`);
     $('#sl-val').textContent = S.count;
   }
+  $('#vblock').style.display = c.variants ? '' : 'none';
+  if (c.variants) $('#variants').innerHTML = c.variants.map((v, i) => `<div class="addon${i === S.v ? ' on' : ''}" data-variant="${i}"><span class="n">${v.name}<small>${v.hint}</small></span>
+    <span class="v">${priceText(v.price, c)}</span><span class="radio"></span></div>`).join('');
   const vis = addonsFor();
   for (const id of [...S.on]) if (!vis.some(a => a.id === id)) S.on.delete(id);
+  $('#ablock').style.display = vis.length ? '' : 'none';
   $('#addons').innerHTML = vis.map(a => `<div class="addon${S.on.has(a.id) ? ' on' : ''}" data-addon="${a.id}"><span class="n">${a.name}<small>${a.hint || ''}</small></span>
     <span class="v">${a.pct ? '+' + a.pct + '%' : '+' + rub(addonPrice(a))}</span><span class="sw"><i></i></span></div>`).join('');
-  $('#sum').textContent = rub(total());
-  $('#term').textContent = 'примерно · ' + t.term + (S.on.has('urgent') ? ', быстрее на треть' : '');
+  const sum = total();
+  $('#sum').textContent = sum ? rub(sum) : 'Бесплатно';
+  $('#term').textContent = (c.suffix ? c.suffix.trim() : 'примерно · ' + (variant()?.term || s.term)) + (S.on.has('urgent') ? ', быстрее на треть' : '');
 }
 
 function drawPattern() {
@@ -213,42 +232,44 @@ function go(id) {
   haptic();
 }
 function openSheet(id) {
-  const s = PR.services.find(x => x.id === id);
+  const s = PR.services.find(x => x.id === id), c = s.calc;
+  const rows = list => `<div class="list">${list.map(([k, v]) => `<div><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}</div>`;
+  // Срочность есть почти везде, в карточке её не повторяем
+  const more = [
+    ...(c.unit ? [[`Сверх ${c.incl}, за ${c.each}`, '+' + rub(c.per)]] : []),
+    ...addonsFor(id).filter(a => a.price).map(a => [a.name, '+' + rub(addonPrice(a, id))]),
+    ...(s.more || [])];
   $('#sheet-body').innerHTML = `<div class="eyebrow">${s.term}</div><h2 style="margin-top:6px">${s.name}</h2><p class="lead">${s.desc}</p>
     <div class="box"><span>Цена</span><div class="sum">${s.price}</div></div>
     ${s.inc.length ? `<div class="sub">Входит в цену</div><div class="list">${s.inc.map(i => `<div class="ok">${i}</div>`).join('')}</div>` : ''}
-    ${s.extra.length ? `<div class="sub">${s.inc.length ? 'Цену увеличивает' : 'Цены'}</div><div class="list">${s.extra.map(([k, v]) => `<div><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}</div>` : ''}`;
-  // У услуг без калькулятора вместо расчёта кнопка обсуждения в боте
-  $('#sheet').dataset.calc = s.calc || '';
-  $('#sheet-cta').textContent = s.calc ? 'Рассчитать стоимость' : 'Обсудить в боте';
+    ${c.variants ? `<div class="sub">Варианты</div>${rows(c.variants.map(v => [v.name, priceText(v.price, c)]))}` : ''}
+    ${more.length ? `<div class="sub">${c.variants ? 'Дополнительно' : 'Цену увеличивает'}</div>${rows(more)}` : ''}`;
+  $('#sheet').dataset.svc = id;
   $('#sheet-body').scrollTop = 0;
   $('#app').classList.add('sheet-open'); haptic();
 }
 const closeSheet = () => $('#app').classList.remove('sheet-open');
 
-// Расчёт уходит в бота через стартовую ссылку: calc_<тип>_<кол-во>_<коды дополнений>
+// Расчёт уходит в бота через стартовую ссылку: calc_<услуга>_<кол-во или номер варианта>_<коды допов>
 function sendToBot() {
-  const t = typeOf(), codes = addonsFor().filter(a => S.on.has(a.id)).map(a => a.code).join('');
-  const payload = ['calc', t.id, t.unit ? S.count : 0, codes || 'x'].join('_');
+  const c = typeOf().calc, codes = addonsFor().filter(a => S.on.has(a.id)).map(a => a.code).join('');
+  const payload = ['calc', S.type, c.unit ? S.count : c.variants ? S.v : 0, codes || 'x'].join('_');
   tg?.HapticFeedback?.notificationOccurred?.('success');
   openTg(`https://t.me/${BOT}?start=${payload}`);
   tg?.close();
 }
 
 document.addEventListener('click', e => {
-  const el = e.target.closest('[data-go],[data-tab],[data-svc],[data-type],[data-addon],#send,#sheet-cta,#backdrop');
+  const el = e.target.closest('[data-go],[data-tab],[data-svc],[data-type],[data-variant],[data-addon],#send,#sheet-cta,#backdrop');
   if (!el) return;
   if (el.dataset.go) go(el.dataset.go);
   else if (el.dataset.tab) go(el.dataset.tab);
   else if (el.dataset.svc) openSheet(el.dataset.svc);
-  else if (el.dataset.type) { S.type = el.dataset.type; S.count = typeOf().incl || 0; renderCalc(); haptic(); }
+  else if (el.dataset.type) { pick(el.dataset.type); renderCalc(); haptic(); }
+  else if (el.dataset.variant) { S.v = +el.dataset.variant; renderCalc(); haptic(); }
   else if (el.dataset.addon) { const id = el.dataset.addon; S.on.has(id) ? S.on.delete(id) : S.on.add(id); renderCalc(); haptic(); }
   else if (el.id === 'send') sendToBot();
-  else if (el.id === 'sheet-cta') {
-    const c = $('#sheet').dataset.calc;
-    if (!c) return go('lead');
-    S.type = c; S.count = typeOf().incl || 0; closeSheet(); go('calc');
-  }
+  else if (el.id === 'sheet-cta') { pick($('#sheet').dataset.svc); closeSheet(); $('#s-calc .scroll').scrollTop = 0; cur === 'calc' ? renderCalc() : go('calc'); }
   else if (el.id === 'backdrop') closeSheet();
 });
 $('#range').addEventListener('input', e => { S.count = +e.target.value; renderCalc(); });
@@ -259,7 +280,7 @@ fetch('prices.json').then(r => r.json()).then(p => {
     <div class="who">${s.who}</div><div class="term">${s.term}</div></div>`;
   const byId = Object.fromEntries(PR.services.map(s => [s.id, s]));
   $('#svc-list').innerHTML = PR.groups.map(g => `<div class="group">${g.name}</div>${g.ids.map(id => card(byId[id])).join('')}`).join('');
-  $('#types').innerHTML = PR.types.map(t => `<div class="chip" data-type="${t.id}">${t.name}</div>`).join('');
+  $('#types').innerHTML = PR.groups.map(g => `<div class="tgroup">${g.name}</div><div class="chips">${g.ids.map(id => `<div class="chip" data-type="${id}">${byId[id].short}</div>`).join('')}</div>`).join('');
   const start = tg?.initDataUnsafe?.start_param || new URLSearchParams(location.search).get('open');
   if (start === 'calc' || start === 'services' || start === 'project') go(start);
   renderCalc();
