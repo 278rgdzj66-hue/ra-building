@@ -40,6 +40,15 @@
   .tile.wide span { color: #b9b2a6; } .tile.wide .arrow { margin-left: auto; color: var(--sand); font-size: 18px; }
   .ico { width: 30px; height: 30px; border-radius: 10px; background: var(--soft); display: grid; place-items: center; color: var(--accent); }
   .tile.wide .ico { background: #34312c; color: var(--sand); }
+  .ico svg { width: 20px; height: 20px; }
+  .tab svg { width: 23px; height: 23px; }
+  /* Иконки Phosphor, начертание Light: тонкая линия в пару к антикве */
+  #back { position: absolute; top: 10px; left: 12px; z-index: 6; display: none; align-items: center; gap: 2px; height: 30px; padding: 0 12px 0 6px;
+          border-radius: 999px; border: 1px solid var(--line); background: rgba(251,249,244,.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+          font: 500 13px Inter; color: var(--ink); cursor: pointer; opacity: 0; transition: opacity .2s; }
+  #back svg { width: 16px; height: 16px; }
+  #back.on { display: flex; opacity: 1; }
+  .app.has-back .screen > .scroll > h2:first-child { margin-top: 52px; }
   .rowlink { margin-top: 14px; display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; padding: 12px 2px; border-top: 1px solid var(--line); }
 
   .svc { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; margin-top: 10px; cursor: pointer; transition: transform .12s; }
@@ -98,6 +107,7 @@
 <body>
 <div class="app" id="app">
   <div class="viewport">
+    <button id="back" aria-label="Назад"><svg class="i" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M164.24,203.76a6,6,0,1,1-8.48,8.48l-80-80a6,6,0,0,1,0-8.48l80-80a6,6,0,0,1,8.48,8.48L88.49,128Z"/></svg>Главная</button>
     <section class="screen on" id="s-home"><div class="scroll">
       <div class="hero"><canvas id="pattern"></canvas>
         <div class="logo">R<i>&amp;</i>A</div>
@@ -106,13 +116,13 @@
         <p class="lead">Сайты, приложения и Telegram-боты для бизнеса. Посчитайте стоимость за минуту.</p>
       </div>
       <div class="tiles">
-        <div class="tile" data-go="services"><span class="ico">◇</span><div><b>Услуги</b><br><span>что входит в цену</span></div></div>
-        <div class="tile" data-go="calc"><span class="ico">≈</span><div><b>Расчёт</b><br><span>цена и срок сразу</span></div></div>
-        <div class="tile" data-go="lead"><span class="ico">✎</span><div><b>Заявка</b><br><span>в чате бота</span></div></div>
-        <div class="tile" data-go="channel"><span class="ico">◎</span><div><b>Работы</b><br><span>кейсы в канале</span></div></div>
-        <div class="tile wide" data-go="project"><span class="ico">▤</span><div><b>Мой проект</b><br><span>этапы, демо и оплата</span></div><span class="arrow">›</span></div>
+        <div class="tile" data-go="services"><span class="ico"><svg class="i" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M104,42H56A14,14,0,0,0,42,56v48a14,14,0,0,0,14,14h48a14,14,0,0,0,14-14V56A14,14,0,0,0,104,42Zm2,62a2,2,0,0,1-2,2H56a2,2,0,0,1-2-2V56a2,2,0,0,1,2-2h48a2,2,0,0,1,2,2Zm94-62H152a14,14,0,0,0-14,14v48a14,14,0,0,0,14,14h48a14,14,0,0,0,14-14V56A14,14,0,0,0,200,42Zm2,62a2,2,0,0,1-2,2H152a2,2,0,0,1-2-2V56a2,2,0,0,1,2-2h48a2,2,0,0,1,2,2Zm-98,34H56a14,14,0,0,0-14,14v48a14,14,0,0,0,14,14h48a14,14,0,0,0,14-14V152A14,14,0,0,0,104,138Zm2,62a2,2,0,0,1-2,2H56a2,2,0,0,1-2-2V152a2,2,0,0,1,2-2h48a2,2,0,0,1,2,2Zm94-62H152a14,14,0,0,0-14,14v48a14,14,0,0,0,14,14h48a14,14,0,0,0,14-14V152A14,14,0,0,0,200,138Zm2,62a2,2,0,0,1-2,2H152a2,2,0,0,1-2-2V152a2,2,0,0,1,2-2h48a2,2,0,0,1,2,2Z"/></svg></span><div><b>Услуги</b><br><span>что входит в цену</span></div></div>
+        <div class="tile" data-go="calc"><span class="ico"><svg class="i" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M176,58H80a6,6,0,0,0-6,6v48a6,6,0,0,0,6,6h96a6,6,0,0,0,6-6V64A6,6,0,0,0,176,58Zm-6,48H86V70h84Zm30-80H56A14,14,0,0,0,42,40V216a14,14,0,0,0,14,14H200a14,14,0,0,0,14-14V40A14,14,0,0,0,200,26Zm2,190a2,2,0,0,1-2,2H56a2,2,0,0,1-2-2V40a2,2,0,0,1,2-2H200a2,2,0,0,1,2,2ZM98,148a10,10,0,1,1-10-10A10,10,0,0,1,98,148Zm40,0a10,10,0,1,1-10-10A10,10,0,0,1,138,148Zm40,0a10,10,0,1,1-10-10A10,10,0,0,1,178,148ZM98,188a10,10,0,1,1-10-10A10,10,0,0,1,98,188Zm40,0a10,10,0,1,1-10-10A10,10,0,0,1,138,188Zm40,0a10,10,0,1,1-10-10A10,10,0,0,1,178,188Z"/></svg></span><div><b>Расчёт</b><br><span>цена и срок сразу</span></div></div>
+        <div class="tile" data-go="lead"><span class="ico"><svg class="i" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M225.88,30.12a13.83,13.83,0,0,0-13.7-3.58l-.11,0L20.14,84.77A14,14,0,0,0,18,110.85l85.56,41.64L145.12,238a13.87,13.87,0,0,0,12.61,8c.4,0,.81,0,1.21-.05a13.9,13.9,0,0,0,12.29-10.09l58.2-191.93,0-.11A13.83,13.83,0,0,0,225.88,30.12Zm-8,10.4L159.73,232.43l0,.11a2,2,0,0,1-3.76.26l-40.68-83.58,49-49a6,6,0,1,0-8.49-8.49l-49,49L23.15,100a2,2,0,0,1,.31-3.74l.11,0L215.48,38.08a1.94,1.94,0,0,1,1.92.52A2,2,0,0,1,217.92,40.52Z"/></svg></span><div><b>Заявка</b><br><span>в чате бота</span></div></div>
+        <div class="tile" data-go="channel"><span class="ico"><svg class="i" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,42H72A14,14,0,0,0,58,56V74H40A14,14,0,0,0,26,88V200a14,14,0,0,0,14,14H184a14,14,0,0,0,14-14V182h18a14,14,0,0,0,14-14V56A14,14,0,0,0,216,42ZM70,56a2,2,0,0,1,2-2H216a2,2,0,0,1,2,2v67.57L204.53,110.1a14,14,0,0,0-19.8,0l-21.42,21.41L117.9,86.1a14,14,0,0,0-19.8,0L70,114.2ZM186,200a2,2,0,0,1-2,2H40a2,2,0,0,1-2-2V88a2,2,0,0,1,2-2H58v82a14,14,0,0,0,14,14H186Zm30-30H72a2,2,0,0,1-2-2V131.17l36.58-36.58a2,2,0,0,1,2.83,0l49.66,49.66a6,6,0,0,0,8.49,0l25.65-25.66a2,2,0,0,1,2.83,0l22,22V168A2,2,0,0,1,216,170ZM162,84a10,10,0,1,1,10,10A10,10,0,0,1,162,84Z"/></svg></span><div><b>Работы</b><br><span>кейсы в канале</span></div></div>
+        <div class="tile wide" data-go="project"><span class="ico"><svg class="i" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,50H40a6,6,0,0,0-6,6V208a14,14,0,0,0,14,14H88a14,14,0,0,0,14-14V158h52v18a14,14,0,0,0,14,14h40a14,14,0,0,0,14-14V56A6,6,0,0,0,216,50Zm-6,64H166V62h44ZM90,62v52H46V62Zm0,146a2,2,0,0,1-2,2H48a2,2,0,0,1-2-2V126H90Zm12-62V62h52v84Zm106,32H168a2,2,0,0,1-2-2V126h44v50A2,2,0,0,1,208,178Z"/></svg></span><div><b>Мой проект</b><br><span>этапы, демо и оплата</span></div><span class="arrow">›</span></div>
       </div>
-      <div class="rowlink"><span>Отвечаем в течение часа</span><span>@xcrtyyx</span></div>
+      <div class="rowlink"><span>Отвечаем в течение часа</span><span>@xcrtyyyx</span></div>
     </div></section>
 
     <section class="screen" id="s-services"><div class="scroll">
@@ -142,10 +152,10 @@
   </div>
 
   <nav class="tabs">
-    <div class="tab on" data-tab="home"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 11l8-7 8 7v9H4z"/></svg>Главная</div>
-    <div class="tab" data-tab="services"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg>Услуги</div>
-    <div class="tab" data-tab="calc"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6M9 13h2M13 13h2M9 17h2M13 17h2"/></svg>Расчёт</div>
-    <div class="tab" data-tab="project"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h10M4 18h6"/></svg>Проект</div>
+    <div class="tab on" data-tab="home"><svg class="i" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M217.9,110.1l-80-80a14,14,0,0,0-19.8,0l-80,80A13.92,13.92,0,0,0,34,120v96a6,6,0,0,0,6,6H216a6,6,0,0,0,6-6V120A13.92,13.92,0,0,0,217.9,110.1ZM210,210H46V120a2,2,0,0,1,.58-1.42l80-80a2,2,0,0,1,2.84,0l80,80A2,2,0,0,1,210,120Z"/></svg>Главная</div>
+    <div class="tab" data-tab="services"><svg class="i" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M104,42H56A14,14,0,0,0,42,56v48a14,14,0,0,0,14,14h48a14,14,0,0,0,14-14V56A14,14,0,0,0,104,42Zm2,62a2,2,0,0,1-2,2H56a2,2,0,0,1-2-2V56a2,2,0,0,1,2-2h48a2,2,0,0,1,2,2Zm94-62H152a14,14,0,0,0-14,14v48a14,14,0,0,0,14,14h48a14,14,0,0,0,14-14V56A14,14,0,0,0,200,42Zm2,62a2,2,0,0,1-2,2H152a2,2,0,0,1-2-2V56a2,2,0,0,1,2-2h48a2,2,0,0,1,2,2Zm-98,34H56a14,14,0,0,0-14,14v48a14,14,0,0,0,14,14h48a14,14,0,0,0,14-14V152A14,14,0,0,0,104,138Zm2,62a2,2,0,0,1-2,2H56a2,2,0,0,1-2-2V152a2,2,0,0,1,2-2h48a2,2,0,0,1,2,2Zm94-62H152a14,14,0,0,0-14,14v48a14,14,0,0,0,14,14h48a14,14,0,0,0,14-14V152A14,14,0,0,0,200,138Zm2,62a2,2,0,0,1-2,2H152a2,2,0,0,1-2-2V152a2,2,0,0,1,2-2h48a2,2,0,0,1,2,2Z"/></svg>Услуги</div>
+    <div class="tab" data-tab="calc"><svg class="i" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M176,58H80a6,6,0,0,0-6,6v48a6,6,0,0,0,6,6h96a6,6,0,0,0,6-6V64A6,6,0,0,0,176,58Zm-6,48H86V70h84Zm30-80H56A14,14,0,0,0,42,40V216a14,14,0,0,0,14,14H200a14,14,0,0,0,14-14V40A14,14,0,0,0,200,26Zm2,190a2,2,0,0,1-2,2H56a2,2,0,0,1-2-2V40a2,2,0,0,1,2-2H200a2,2,0,0,1,2,2ZM98,148a10,10,0,1,1-10-10A10,10,0,0,1,98,148Zm40,0a10,10,0,1,1-10-10A10,10,0,0,1,138,148Zm40,0a10,10,0,1,1-10-10A10,10,0,0,1,178,148ZM98,188a10,10,0,1,1-10-10A10,10,0,0,1,98,188Zm40,0a10,10,0,1,1-10-10A10,10,0,0,1,138,188Zm40,0a10,10,0,1,1-10-10A10,10,0,0,1,178,188Z"/></svg>Расчёт</div>
+    <div class="tab" data-tab="project"><svg class="i" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,50H40a6,6,0,0,0-6,6V208a14,14,0,0,0,14,14H88a14,14,0,0,0,14-14V158h52v18a14,14,0,0,0,14,14h40a14,14,0,0,0,14-14V56A6,6,0,0,0,216,50Zm-6,64H166V62h44ZM90,62v52H46V62Zm0,146a2,2,0,0,1-2,2H48a2,2,0,0,1-2-2V126H90Zm12-62V62h52v84Zm106,32H168a2,2,0,0,1-2-2V126h44v50A2,2,0,0,1,208,178Z"/></svg>Проект</div>
   </nav>
 </div>
 
@@ -229,8 +239,17 @@ function go(id) {
   if (id === 'calc') renderCalc();
   $('#s-' + cur).classList.remove('on'); $('#s-' + id).classList.add('on');
   cur = id; document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === id));
-  haptic();
+  syncBack(); haptic();
 }
+// «Назад» слева сверху: в Telegram – штатная кнопка в шапке, в браузере – своя. Ведёт на главную или закрывает карточку
+const inTelegram = () => !!tg && tg.platform && tg.platform !== 'unknown';
+function syncBack() {
+  const need = cur !== 'home' || $('#app').classList.contains('sheet-open');
+  if (inTelegram() && tg.BackButton) need ? tg.BackButton.show() : tg.BackButton.hide();
+  else { $('#back').classList.toggle('on', need); $('#app').classList.toggle('has-back', need); }
+}
+function back() { if ($('#app').classList.contains('sheet-open')) closeSheet(); else go('home'); }
+tg?.BackButton?.onClick(back);
 function openSheet(id) {
   const s = PR.services.find(x => x.id === id), c = s.calc;
   const rows = list => `<div class="list">${list.map(([k, v]) => `<div><span class="k">${k}</span><span class="v">${v}</span></div>`).join('')}</div>`;
@@ -246,9 +265,9 @@ function openSheet(id) {
     ${more.length ? `<div class="sub">${c.variants ? 'Дополнительно' : 'Цену увеличивает'}</div>${rows(more)}` : ''}`;
   $('#sheet').dataset.svc = id;
   $('#sheet-body').scrollTop = 0;
-  $('#app').classList.add('sheet-open'); haptic();
+  $('#app').classList.add('sheet-open'); syncBack(); haptic();
 }
-const closeSheet = () => $('#app').classList.remove('sheet-open');
+const closeSheet = () => { $('#app').classList.remove('sheet-open'); syncBack(); };
 
 // Расчёт уходит в бота через стартовую ссылку: calc_<услуга>_<кол-во или номер варианта>_<коды допов>
 function sendToBot() {
@@ -272,6 +291,7 @@ document.addEventListener('click', e => {
   else if (el.id === 'sheet-cta') { pick($('#sheet').dataset.svc); closeSheet(); $('#s-calc .scroll').scrollTop = 0; cur === 'calc' ? renderCalc() : go('calc'); }
   else if (el.id === 'backdrop') closeSheet();
 });
+$('#back').addEventListener('click', back);
 $('#range').addEventListener('input', e => { S.count = +e.target.value; renderCalc(); });
 
 fetch('prices.json').then(r => r.json()).then(p => {
