@@ -23,7 +23,7 @@
 
   .eyebrow { font: 400 12px var(--mono); color: var(--faint); }
   h1 { font: 600 34px/1.05 var(--serif); }
-  h2 { font: 600 28px/1.1 var(--serif); margin: 20px 0 4px; }
+  h2 { font: 600 28px/1.1 var(--serif); margin: 20px 0 4px; font-variant-numeric: lining-nums; }
   .lead { color: var(--muted); font-size: 14px; }
   .sub { margin-top: 24px; font: 400 12px var(--mono); color: var(--faint); }
   .sub + * { margin-top: 8px !important; }
@@ -102,6 +102,47 @@
   .stage { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 14px; }
   .stage:first-child { border-top: 0; } .stage .dot { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line); flex: none; }
 
+  /* Проекты: клиент смотрит свой проект, админ ведёт номера и этапы */
+  .pin { margin-top: 16px; display: flex; gap: 8px; }
+  .pin input { flex: 1; min-width: 0; height: 48px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); padding: 0 16px; font: 500 16px var(--mono); color: var(--ink); text-transform: uppercase; }
+  .pin button, .btn { height: 48px; padding: 0 16px; border-radius: 12px; border: 0; background: var(--dark); color: #f4f1ea; font: 500 15px Inter; cursor: pointer; }
+  .perr { margin-top: 8px; min-height: 20px; color: var(--accent); font-size: 13px; }
+  .tl { margin-top: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 4px 16px; }
+  .tl .row { display: flex; align-items: center; gap: 12px; min-height: 48px; border-top: 1px solid var(--line); font-size: 14px; }
+  .tl .row:first-child { border-top: 0; }
+  .tl .dot { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line); flex: none; display: grid; place-items: center; transition: background .15s, border-color .15s; }
+  .tl .done .dot { background: var(--accent); border-color: var(--accent); }
+  .tl .done .dot::after { content: ""; width: 9px; height: 5px; border: 2px solid #fff; border-top: 0; border-right: 0; transform: translateY(-1px) rotate(-45deg); }
+  .tl .now .dot { border-color: var(--accent); }
+  .tl .now .dot::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .tl .n { flex: 1; } .tl .todo .n { color: var(--faint); } .tl .d { font: 400 12px var(--mono); color: var(--faint); }
+  .tl.edit .dot { cursor: pointer; }
+  .tl input[type=date] { border: 0; background: transparent; font: 400 12px var(--mono); color: var(--muted); max-width: 132px; }
+  .tl input[type=date][value=""]:not(:focus) { opacity: .35; }
+  .pay .bar, .ap .bar { margin-top: 12px; height: 4px; border-radius: 2px; background: var(--soft); overflow: hidden; }
+  .pay .bar i, .ap .bar i { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+  .pay small { font: 400 14px Inter; color: var(--muted); }
+  .wide-btn { margin-top: 12px; width: 100%; height: 48px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: 500 15px Inter; cursor: pointer; }
+  .wide-btn.sand { background: var(--sand); border-color: var(--sand); color: var(--dark); }
+  .meta { margin-top: 12px; display: flex; justify-content: space-between; gap: 8px; padding: 0 4px; font-size: 14px; color: var(--muted); } .meta b { color: var(--ink); font-weight: 500; }
+  .note { margin-top: 12px; padding: 16px; border-radius: 16px; background: var(--soft); font-size: 14px; white-space: pre-line; }
+  .note span { display: block; font: 400 12px var(--mono); color: var(--faint); margin-bottom: 4px; }
+  .f label { display: block; font: 400 13px Inter; color: var(--muted); margin-bottom: 4px; }
+  .ap { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-top: 8px; cursor: pointer; transition: transform .15s cubic-bezier(.22,1,.36,1); }
+  .ap:active { transform: scale(.98); }
+  .ap .top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .ap .code { font: 400 12px var(--mono); color: var(--faint); } .ap b { font-weight: 500; font-size: 15px; } .ap .st { margin-top: 4px; font-size: 13px; color: var(--muted); }
+  .empty { margin-top: 24px; padding: 24px 16px; border: 1px dashed var(--line); border-radius: 16px; text-align: center; color: var(--muted); font-size: 14px; }
+  .f { margin-top: 12px; }
+  .f input, .f select, .f textarea { width: 100%; height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); padding: 0 12px; font: 400 15px Inter; color: var(--ink); }
+  .f textarea { height: 88px; padding: 12px; resize: none; line-height: 1.4; }
+  .f2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .bind { margin-top: 12px; padding: 12px 16px; border-radius: 12px; background: var(--soft); display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .bind button, .link-btn { border: 0; background: none; color: var(--accent); font: 500 13px Inter; cursor: pointer; padding: 0; }
+  .danger { display: block; margin: 24px auto 8px; font-size: 14px; }
+  .toast { position: absolute; left: 50%; bottom: 84px; z-index: 20; width: max-content; max-width: calc(100% - 32px); transform: translate(-50%, 8px); opacity: 0; pointer-events: none;
+           padding: 12px 16px; border-radius: 12px; background: var(--dark); color: #f4f1ea; font-size: 14px; transition: opacity .3s cubic-bezier(.22,1,.36,1), transform .3s cubic-bezier(.22,1,.36,1); }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
   .tabs { flex: none; display: flex; border-top: 1px solid var(--line); background: var(--card); padding: 8px 0 calc(8px + env(safe-area-inset-bottom)); }
   .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; color: var(--faint); cursor: pointer; padding: 4px 0; }
   .tab.on { color: var(--ink); } .tab.on svg { color: var(--accent); }
@@ -142,14 +183,9 @@
       <div id="ablock"><div class="sub">Дополнительно</div><div class="addons" id="addons"></div></div>
     </div><div class="calcbar"><div><div class="sum" id="sum"></div><div class="t" id="term"></div></div><button id="send">Отправить в бот ›</button></div></section>
 
-    <section class="screen" id="s-project"><div class="scroll">
-      <h2>Мой проект</h2><p class="lead">Всё по вашему проекту в одном месте</p>
-      <div class="proj"><div class="eyebrow">Скоро здесь</div><h3>Когда начнём работу, проект появится тут</h3>
-        <p>Этапы с датами, ссылка на тестовую версию после каждого обновления, оплата и дата следующего демо.</p></div>
-      <div class="stages"><div class="stage"><span class="dot"></span>Идея и созвон</div><div class="stage"><span class="dot"></span>ТЗ и прототип</div>
-        <div class="stage"><span class="dot"></span>Разработка</div><div class="stage"><span class="dot"></span>Проверка вместе</div><div class="stage"><span class="dot"></span>Запуск</div></div>
-    </div><button class="cta" data-go="calc">Начать с расчёта</button></section>
+    <section class="screen" id="s-project"><div class="scroll" id="proj-scroll"><div id="proj"></div></div><button class="cta" id="proj-cta">Начать с расчёта</button></section>
 
+    <div class="toast" id="toast"></div>
     <div class="backdrop" id="backdrop"></div>
     <div class="sheet" id="sheet"><div class="grab"></div><div class="scroll" id="sheet-body"></div><button class="cta" id="sheet-cta">Рассчитать стоимость</button></div>
   </div>
@@ -240,6 +276,7 @@ function go(id) {
   if (id === 'lead') { openTg(`https://t.me/${BOT}?start=lead`); return tg?.close(); }
   if (id === cur) return;
   if (id === 'calc') renderCalc();
+  if (id === 'project') renderProject();
   $('#s-' + cur).classList.remove('on'); $('#s-' + id).classList.add('on');
   cur = id; document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === id));
   syncBack(); haptic();
@@ -251,7 +288,11 @@ function syncBack() {
   if (inTelegram() && tg.BackButton) need ? tg.BackButton.show() : tg.BackButton.hide();
   else { $('#back').classList.toggle('on', need); $('#app').classList.toggle('has-back', need); }
 }
-function back() { if ($('#app').classList.contains('sheet-open')) closeSheet(); else go('home'); }
+function back() {
+  if ($('#app').classList.contains('sheet-open')) return closeSheet();
+  if (cur === 'project' && P.admin && P.mode !== 'list') { P.mode = 'list'; P.edit = null; renderProject(); return syncBack(); }
+  go('home');
+}
 tg?.BackButton?.onClick(back);
 function openSheet(id) {
   const s = PR.services.find(x => x.id === id), c = s.calc;
@@ -281,7 +322,200 @@ function sendToBot() {
   tg?.close();
 }
 
+
+// ---------- Проекты ----------
+// Сначала прямой адрес бота в Cloudflare; если за 4 с нет ответа (бывает в России) – запасной через Яндекс Облако
+const API = ['https://ra-tg-relay.arsenijsile.workers.dev/api/', 'https://functions.yandexcloud.net/d4e4adur2s6l3cf3le7e?api='];
+async function call(path, body = {}) {
+  const payload = JSON.stringify({ initData: tg?.initData || '', ...body });
+  for (const base of API) {
+    const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 4000);
+    try {
+      // text/plain – «простой» запрос без предварительной проверки CORS, так быстрее
+      const r = await fetch(base + path, { method: 'POST', headers: { 'content-type': 'text/plain' }, body: payload, signal: ctl.signal });
+      clearTimeout(timer);
+      return await r.json();
+    } catch { clearTimeout(timer); }
+  }
+  return { ok: false, error: 'network' };
+}
+const P = { ready: false, admin: false, mode: 'client', projects: [], cur: 0, list: [], edit: null, err: '' };
+const esc = t => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const dateRu = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) : '';
+const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+const pct = (a, b) => b ? Math.min(100, Math.round(a / b * 100)) : 0;
+function toast(text) {
+  const t = $('#toast'); t.textContent = text; t.classList.add('on');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 2600);
+}
+const cta = (text, act) => { const b = $('#proj-cta'); b.textContent = text; b.dataset.act = act; };
+
+function stagesHtml(stages, edit) {
+  const now = stages.findIndex(x => !x.done);
+  return `<div class="tl${edit ? ' edit' : ''}">${stages.map((x, i) => `<div class="row ${x.done ? 'done' : i === now ? 'now' : 'todo'}">
+    <span class="dot"${edit ? ` data-stage="${i}"` : ''}></span><span class="n">${esc(x.name)}</span>
+    ${edit ? `<input type="date" data-sdate="${i}" value="${x.date || ''}">` : `<span class="d">${dateRu(x.date)}</span>`}</div>`).join('')}</div>`;
+}
+
+function renderProject() {
+  const v = $('#proj');
+  if (!P.ready) { v.innerHTML = `<h2>Мой проект</h2><p class="lead">Загружаем</p>`; cta('Начать с расчёта', 'calc'); return; }
+  if (!inTelegram()) {
+    v.innerHTML = `<h2>Мой проект</h2><p class="lead">Проект открывается в приложении внутри Telegram</p>`;
+    cta('Начать с расчёта', 'calc'); return;
+  }
+  if (P.admin) return renderAdmin(v);
+  const p = P.projects[P.cur];
+  if (!p) {
+    v.innerHTML = `<h2>Мой проект</h2><p class="lead">Этапы, тестовая версия, оплата и дата показа в одном месте</p>
+      <div class="pin"><input id="pcode" placeholder="RA-1042" autocomplete="off" inputmode="text"><button data-act="open">Открыть</button></div>
+      <div class="perr" id="perr">${esc(P.err)}</div>
+      <p class="lead">Номер проекта пришлёт менеджер после старта работы</p>
+      ${stagesHtml(['Идея и созвон', 'ТЗ и прототип', 'Разработка', 'Проверка вместе', 'Запуск'].map(name => ({ name, done: false })), false).replace('class="tl"', 'class="tl" style="opacity:.55"')}`;
+    cta('Начать с расчёта', 'calc'); return;
+  }
+  const switcher = P.projects.length > 1 ? `<div class="chips">${P.projects.map((x, i) => `<div class="chip${i === P.cur ? ' on' : ''}" data-pi="${i}">${x.code}</div>`).join('')}</div>` : '';
+  v.innerHTML = `<h2>Проект ${p.code}</h2><p class="lead">${esc(p.service)}${p.updated ? ` · обновлён ${dateRu(p.updated.slice(0, 10))}` : ''}</p>${switcher}
+    ${stagesHtml(p.stages, false)}
+    ${p.demo_url ? `<button class="wide-btn sand" data-act="demo">Открыть тестовую версию</button>` : ''}
+    ${p.next_demo ? `<div class="meta"><span>Следующий показ</span><b>${dateRu(p.next_demo)}</b></div>` : ''}
+    ${p.total ? `<div class="box pay"><span>Оплачено</span><div class="sum">${rub(p.paid)} <small>из ${rub(p.total)}</small></div><div class="bar"><i style="width:${pct(p.paid, p.total)}%"></i></div></div>` : ''}
+    ${p.note ? `<div class="note"><span>Комментарий менеджера</span>${esc(p.note)}</div>` : ''}
+    <div style="text-align:center;margin-top:16px"><button class="link-btn" data-act="other">Открыть другой номер</button></div>`;
+  cta('Написать менеджеру', 'manager');
+}
+
+function renderAdmin(v) {
+  if (P.mode === 'new') {
+    v.innerHTML = `<h2>Новый проект</h2><p class="lead">Номер выдадим сами, ссылку перешлёте клиенту</p>
+      <div class="f"><label>Клиент</label><input id="n-client" placeholder="Кофейня «Зерно»"></div>
+      <div class="f"><label>Услуга</label><select id="n-service">${PR.services.map(x => `<option>${esc(x.name)}</option>`).join('')}<option>Другое</option></select></div>
+      <div class="f"><label>Сумма, ₽</label><input id="n-total" inputmode="numeric" placeholder="55000"></div>`;
+    cta('Создать проект', 'create'); return;
+  }
+  if (P.mode === 'edit' && P.edit) {
+    const p = P.edit;
+    v.innerHTML = `<h2>${p.code}</h2><p class="lead">${esc(p.client)} · ${esc(p.service)}</p>
+      <div class="bind">${p.client_id ? `<span>Клиент открыл проект${p.client_username ? `: @${esc(p.client_username)}` : p.client_tg_name ? `: ${esc(p.client_tg_name)}` : ''}</span><button data-act="unbind">Отвязать</button>`
+        : '<span>Клиент ещё не открывал проект</span>'}</div>
+      <button class="wide-btn sand" data-act="share">Отправить ссылку клиенту</button>
+      <div class="sub">Этапы · нажмите на кружок</div>${stagesHtml(p.stages, true)}
+      <div class="sub">Оплата</div><div class="f2"><div class="f"><label>Сумма, ₽</label><input id="e-total" inputmode="numeric" value="${p.total || ''}"></div>
+        <div class="f"><label>Оплачено, ₽</label><input id="e-paid" inputmode="numeric" value="${p.paid || ''}"></div></div>
+      <div class="sub">Для клиента</div>
+      <div class="f"><label>Ссылка на тестовую версию</label><input id="e-demo" inputmode="url" placeholder="https://" value="${esc(p.demo_url)}"></div>
+      <div class="f"><label>Следующий показ</label><input id="e-next" type="date" value="${p.next_demo || ''}"></div>
+      <div class="f"><label>Комментарий клиенту</label><textarea id="e-note" placeholder="Прототип готов, ждём ваши правки">${esc(p.note)}</textarea></div>
+      <div class="sub">Карточка</div>
+      <div class="f"><label>Клиент</label><input id="e-client" value="${esc(p.client)}"></div>
+      <div class="f"><label>Услуга</label><input id="e-service" value="${esc(p.service)}"></div>
+      <button class="link-btn danger" data-act="delete">Удалить проект</button>`;
+    cta('Сохранить', 'save'); return;
+  }
+  v.innerHTML = `<h2>Проекты</h2><p class="lead">Номера для клиентов, этапы и оплата</p>
+    ${P.list.length ? P.list.map(x => `<div class="ap" data-code="${x.code}"><div class="top"><b>${esc(x.client)}</b><span class="code">${x.code}</span></div>
+      <div class="st">${esc(x.service)} · ${esc(x.stage)}${x.bound ? '' : ' · клиент не открывал'}</div>
+      ${x.total ? `<div class="bar"><i style="width:${pct(x.paid, x.total)}%"></i></div>` : ''}</div>`).join('')
+      : '<div class="empty">Пока нет проектов. Создайте первый, и номер появится здесь</div>'}`;
+  cta('Новый проект', 'new');
+}
+
+async function loadAdminList() { const r = await call('list'); if (r.ok) { P.list = r.projects; renderProject(); } }
+async function openAdmin(code) {
+  const r = await call('open', { code });
+  if (!r.ok) return toast('Не удалось открыть проект');
+  P.edit = r.project; P.mode = 'edit'; renderProject(); $('#proj-scroll').scrollTop = 0; syncBack();
+}
+function collectEdit() {
+  const p = P.edit;
+  document.querySelectorAll('[data-sdate]').forEach(el => { p.stages[+el.dataset.sdate].date = el.value; });
+  return { client: $('#e-client').value, service: $('#e-service').value, total: $('#e-total').value, paid: $('#e-paid').value,
+    demo_url: $('#e-demo').value, next_demo: $('#e-next').value, note: $('#e-note').value, stages: p.stages };
+}
+async function projectAct(act) {
+  if (act === 'calc') return go('calc');
+  if (act === 'manager') return openTg('https://t.me/ra_studio_manager');
+  if (act === 'demo') { const u = P.projects[P.cur]?.demo_url; return u && (tg?.openLink ? tg.openLink(u) : window.open(u, '_blank')); }
+  if (act === 'other') { P.cur = P.projects.length; renderProject(); return; }
+  if (act === 'open') {
+    const code = $('#pcode').value.trim();
+    if (!code) return;
+    $('#perr').textContent = '';
+    const r = await call('open', { code });
+    if (r.ok) { P.projects = [...P.projects.filter(x => x.code !== r.project.code), r.project]; P.cur = P.projects.length - 1; P.err = ''; haptic(); }
+    else P.err = { notfound: 'Такого номера нет. Проверьте у менеджера', taken: 'Этот проект открыт с другого аккаунта. Напишите менеджеру', network: 'Нет связи, попробуйте ещё раз' }[r.error] || 'Не получилось, попробуйте ещё раз';
+    return renderProject();
+  }
+  if (act === 'new') { P.mode = 'new'; renderProject(); syncBack(); return; }
+  if (act === 'create') {
+    const b = $('#proj-cta'); b.disabled = true;
+    const r = await call('create', { client: $('#n-client').value, service: $('#n-service').value, total: $('#n-total').value.replace(/\D/g, '') });
+    b.disabled = false;
+    if (!r.ok) return toast('Не удалось создать, попробуйте ещё раз');
+    P.edit = r.project; P.mode = 'edit'; renderProject(); toast(`Проект ${r.project.code} создан`); loadAdminList(); return;
+  }
+  if (act === 'save') {
+    const b = $('#proj-cta'); b.disabled = true;
+    const patch = collectEdit(); patch.total = String(patch.total).replace(/\D/g, ''); patch.paid = String(patch.paid).replace(/\D/g, '');
+    const r = await call('update', { code: P.edit.code, patch });
+    b.disabled = false;
+    if (!r.ok) return toast('Не сохранилось, попробуйте ещё раз');
+    P.edit = r.project; renderProject(); haptic();
+    toast(r.notified ? 'Сохранено, клиент получил уведомление' : 'Сохранено'); loadAdminList(); return;
+  }
+  if (act === 'share') {
+    const link = `https://t.me/${BOT}?startapp=p_${P.edit.code}`;
+    const text = `Ваш проект ${P.edit.code}: этапы, тестовая версия и оплата здесь`;
+    return openTg(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`);
+  }
+  if (act === 'unbind') {
+    const r = await call('update', { code: P.edit.code, patch: { unbind: true }, notify: false });
+    if (r.ok) { P.edit = r.project; renderProject(); toast('Проект отвязан, его можно открыть заново'); loadAdminList(); }
+    return;
+  }
+  if (act === 'delete') {
+    const sure = await new Promise(res => tg?.showConfirm ? tg.showConfirm(`Удалить проект ${P.edit.code}? Клиент больше не сможет его открыть.`, res) : res(confirm('Удалить проект?')));
+    if (!sure) return;
+    const r = await call('delete', { code: P.edit.code });
+    if (r.ok) { P.mode = 'list'; P.edit = null; toast('Проект удалён'); await loadAdminList(); syncBack(); }
+  }
+}
+
+async function initProjects(code) {
+  if (!inTelegram()) { P.ready = true; return renderProject(); }
+  const me = await call('me');
+  P.ready = true;
+  if (me.ok) {
+    P.admin = me.admin; P.projects = me.projects || [];
+    if (P.admin) {
+      P.mode = 'list';
+      document.querySelector('.tile.wide b').textContent = 'Проекты';
+      document.querySelector('.tile.wide span span, .tile.wide div span').textContent = 'номера, этапы и оплата';
+      document.querySelector('[data-tab=project]').lastChild.textContent = 'Проекты';
+      await loadAdminList();
+    }
+  }
+  if (code) {
+    if (P.admin) await openAdmin(code);
+    else { const r = await call('open', { code }); if (r.ok) { P.projects = [...P.projects.filter(x => x.code !== r.project.code), r.project]; P.cur = P.projects.length - 1; } else P.err = r.error === 'taken' ? 'Этот проект открыт с другого аккаунта. Напишите менеджеру' : ''; }
+  }
+  renderProject();
+}
+
 document.addEventListener('click', e => {
+  const pe = e.target.closest('[data-act],[data-stage],[data-code],[data-pi]');
+  if (pe && pe.closest('#s-project')) {
+    if (pe.dataset.stage !== undefined) {
+      // сначала забираем то, что уже введено в поля, потом отмечаем этап (и ставим сегодняшнюю дату)
+      Object.assign(P.edit, collectEdit());
+      const st = P.edit.stages[+pe.dataset.stage]; st.done = !st.done;
+      if (st.done && !st.date) st.date = today();
+      renderProject(); haptic(); return;
+    }
+    if (pe.dataset.code) return openAdmin(pe.dataset.code);
+    if (pe.dataset.pi !== undefined) { P.cur = +pe.dataset.pi; renderProject(); return; }
+    return projectAct(pe.dataset.act);
+  }
   const el = e.target.closest('[data-go],[data-tab],[data-svc],[data-type],[data-variant],[data-addon],#send,#sheet-cta,#backdrop');
   if (!el) return;
   if (el.dataset.go) go(el.dataset.go);
@@ -295,6 +529,7 @@ document.addEventListener('click', e => {
   else if (el.id === 'backdrop') closeSheet();
 });
 $('#back').addEventListener('click', back);
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'pcode') projectAct('open'); });
 $('#range').addEventListener('input', e => { S.count = +e.target.value; renderCalc(); });
 
 fetch('prices.json').then(r => r.json()).then(p => {
@@ -305,8 +540,11 @@ fetch('prices.json').then(r => r.json()).then(p => {
   $('#svc-list').innerHTML = PR.groups.map(g => `<div class="group">${g.name}</div>${g.ids.map(id => card(byId[id])).join('')}`).join('');
   $('#types').innerHTML = PR.groups.map(g => `<div class="tgroup">${g.name}</div><div class="chips">${g.ids.map(id => `<div class="chip" data-type="${id}">${byId[id].short}</div>`).join('')}</div>`).join('');
   const start = tg?.initDataUnsafe?.start_param || new URLSearchParams(location.search).get('open');
+  const pcode = (start || '').startsWith('p_') ? start.slice(2) : new URLSearchParams(location.search).get('p');
   if (start === 'calc' || start === 'services' || start === 'project') go(start);
+  if (pcode) go('project');
   renderCalc();
+  initProjects(pcode);
 });
 document.fonts.ready.then(drawPattern);
 </script>
