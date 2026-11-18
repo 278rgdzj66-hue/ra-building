@@ -108,8 +108,20 @@
   .pin button, .btn { height: 48px; padding: 0 16px; border-radius: 12px; border: 0; background: var(--dark); color: #f4f1ea; font: 500 15px Inter; cursor: pointer; }
   .perr { margin-top: 8px; min-height: 20px; color: var(--accent); font-size: 13px; }
   .tl { margin-top: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 4px 16px; }
-  .tl .row { display: flex; align-items: center; gap: 12px; min-height: 48px; border-top: 1px solid var(--line); font-size: 14px; }
-  .tl .row:first-child { border-top: 0; }
+  .tl .row { display: flex; align-items: center; gap: 12px; min-height: 48px; font-size: 14px; }
+  .tl .stg + .stg { border-top: 1px solid var(--line); }
+  .tl .n small { margin-left: 4px; font: 400 12px var(--mono); color: var(--faint); }
+  /* Подпункты этапа: отступ под кружок этапа (24 + 12) */
+  .subs { padding: 0 0 12px 36px; margin-top: -4px; }
+  .srow { display: flex; align-items: center; gap: 8px; min-height: 32px; font-size: 13px; color: var(--muted); }
+  .srow.done { color: var(--ink); }
+  .sdot { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--line); flex: none; display: grid; place-items: center; transition: background .15s, border-color .15s; }
+  .srow.done .sdot { background: var(--accent); border-color: var(--accent); }
+  .srow.done .sdot::after { content: ""; width: 6px; height: 3px; border: 1.5px solid #fff; border-top: 0; border-right: 0; transform: translateY(-1px) rotate(-45deg); }
+  .tl.edit .sdot { cursor: pointer; }
+  .srow input { flex: 1; min-width: 0; height: 32px; border: 0; border-bottom: 1px solid var(--line); background: transparent; font: 400 14px Inter; color: var(--ink); }
+  .sdel { width: 32px; height: 32px; border: 0; background: none; color: var(--faint); font-size: 18px; cursor: pointer; }
+  .sadd { margin-top: 4px; padding: 4px 0; border: 0; background: none; color: var(--accent); font: 500 13px Inter; cursor: pointer; }
   .tl .dot { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line); flex: none; display: grid; place-items: center; transition: background .15s, border-color .15s; }
   .tl .done .dot { background: var(--accent); border-color: var(--accent); }
   .tl .done .dot::after { content: ""; width: 9px; height: 5px; border: 2px solid #fff; border-top: 0; border-right: 0; transform: translateY(-1px) rotate(-45deg); }
@@ -122,6 +134,7 @@
   .pay .bar, .ap .bar { margin-top: 12px; height: 4px; border-radius: 2px; background: var(--soft); overflow: hidden; }
   .pay .bar i, .ap .bar i { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
   .pay small { font: 400 14px Inter; color: var(--muted); }
+  .pay .sum { font-variant-numeric: lining-nums tabular-nums; }
   .wide-btn { margin-top: 12px; width: 100%; height: 48px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: 500 15px Inter; cursor: pointer; }
   .wide-btn.sand { background: var(--sand); border-color: var(--sand); color: var(--dark); }
   .meta { margin-top: 12px; display: flex; justify-content: space-between; gap: 8px; padding: 0 4px; font-size: 14px; color: var(--muted); } .meta b { color: var(--ink); font-weight: 500; }
@@ -352,9 +365,18 @@ const cta = (text, act) => { const b = $('#proj-cta'); b.textContent = text; b.d
 
 function stagesHtml(stages, edit) {
   const now = stages.findIndex(x => !x.done);
-  return `<div class="tl${edit ? ' edit' : ''}">${stages.map((x, i) => `<div class="row ${x.done ? 'done' : i === now ? 'now' : 'todo'}">
-    <span class="dot"${edit ? ` data-stage="${i}"` : ''}></span><span class="n">${esc(x.name)}</span>
-    ${edit ? `<input type="date" data-sdate="${i}" value="${x.date || ''}">` : `<span class="d">${dateRu(x.date)}</span>`}</div>`).join('')}</div>`;
+  return `<div class="tl${edit ? ' edit' : ''}">${stages.map((x, i) => {
+    const subs = x.subs || [], cnt = subs.length ? `${subs.filter(u => u.done).length} из ${subs.length}` : '';
+    // Подпункты: у менеджера – поле названия, отметка, удаление и «+ подпункт»; у клиента – список с отметками
+    const subsHtml = edit
+      ? `<div class="subs">${subs.map((u, j) => `<div class="srow${u.done ? ' done' : ''}"><span class="sdot" data-sub="${i}:${j}"></span>
+          <input data-sname="${i}:${j}" value="${esc(u.name)}" placeholder="Название подпункта"><button class="sdel" data-sdel="${i}:${j}" aria-label="Удалить">×</button></div>`).join('')}
+          <button class="sadd" data-sadd="${i}">+ подпункт</button></div>`
+      : subs.length ? `<div class="subs">${subs.map(u => `<div class="srow${u.done ? ' done' : ''}"><span class="sdot"></span><span>${esc(u.name)}</span></div>`).join('')}</div>` : '';
+    return `<div class="stg"><div class="row ${x.done ? 'done' : i === now ? 'now' : 'todo'}">
+      <span class="dot"${edit ? ` data-stage="${i}"` : ''}></span><span class="n">${esc(x.name)}${!edit && cnt ? `<small>${cnt}</small>` : ''}</span>
+      ${edit ? `<input type="date" data-sdate="${i}" value="${x.date || ''}">` : `<span class="d">${dateRu(x.date)}</span>`}</div>${subsHtml}</div>`;
+  }).join('')}</div>`;
 }
 
 function renderProject() {
@@ -428,7 +450,9 @@ async function openAdmin(code) {
 }
 function collectEdit() {
   const p = P.edit;
+  p.stages.forEach(x => { x.subs = x.subs || []; });
   document.querySelectorAll('[data-sdate]').forEach(el => { p.stages[+el.dataset.sdate].date = el.value; });
+  document.querySelectorAll('[data-sname]').forEach(el => { const [i, j] = el.dataset.sname.split(':').map(Number); p.stages[i].subs[j].name = el.value; });
   return { client: $('#e-client').value, service: $('#e-service').value, total: $('#e-total').value, paid: $('#e-paid').value,
     demo_url: $('#e-demo').value, next_demo: $('#e-next').value, note: $('#e-note').value, stages: p.stages };
 }
@@ -503,8 +527,19 @@ async function initProjects(code) {
 }
 
 document.addEventListener('click', e => {
-  const pe = e.target.closest('[data-act],[data-stage],[data-code],[data-pi]');
+  const pe = e.target.closest('[data-act],[data-stage],[data-code],[data-pi],[data-sub],[data-sadd],[data-sdel]');
   if (pe && pe.closest('#s-project')) {
+    // подпункты: сначала забираем введённое, потом меняем список
+    if (pe.dataset.sub || pe.dataset.sdel || pe.dataset.sadd !== undefined) {
+      Object.assign(P.edit, collectEdit());
+      if (pe.dataset.sadd !== undefined) {
+        const i = +pe.dataset.sadd; P.edit.stages[i].subs.push({ name: '', done: false });
+        renderProject(); document.querySelector(`[data-sname="${i}:${P.edit.stages[i].subs.length - 1}"]`)?.focus(); return;
+      }
+      const [i, j] = (pe.dataset.sub || pe.dataset.sdel).split(':').map(Number), list = P.edit.stages[i].subs;
+      if (pe.dataset.sub) list[j].done = !list[j].done; else list.splice(j, 1);
+      renderProject(); haptic(); return;
+    }
     if (pe.dataset.stage !== undefined) {
       // сначала забираем то, что уже введено в поля, потом отмечаем этап (и ставим сегодняшнюю дату)
       Object.assign(P.edit, collectEdit());
