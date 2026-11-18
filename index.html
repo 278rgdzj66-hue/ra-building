@@ -122,6 +122,9 @@
   .srow input { flex: 1; min-width: 0; height: 32px; border: 0; border-bottom: 1px solid var(--line); background: transparent; font: 400 14px Inter; color: var(--ink); }
   .sdel { width: 32px; height: 32px; border: 0; background: none; color: var(--faint); font-size: 18px; cursor: pointer; }
   .sadd { margin-top: 4px; padding: 4px 0; border: 0; background: none; color: var(--accent); font: 500 13px Inter; cursor: pointer; }
+  /* Подсказки: типовые подпункты, которых ещё нет у этапа, добавляются одним нажатием */
+  .sugg { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  .sugg button { height: 28px; padding: 0 10px; border-radius: 14px; border: 1px dashed var(--line); background: transparent; color: var(--muted); font: 400 12px Inter; cursor: pointer; }
   .tl .dot { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line); flex: none; display: grid; place-items: center; transition: background .15s, border-color .15s; }
   .tl .done .dot { background: var(--accent); border-color: var(--accent); }
   .tl .done .dot::after { content: ""; width: 9px; height: 5px; border: 2px solid #fff; border-top: 0; border-right: 0; transform: translateY(-1px) rotate(-45deg); }
@@ -213,6 +216,16 @@
 
 <script>
 const BOT = 'ra_building_bot', CHANNEL = 'https://t.me/ra_building';
+// Telegram держит старую копию приложения до 10 минут и дольше. При открытии сверяем версию
+// с version.json и, если вышла новая, перезагружаемся на свежую (данные Telegram в адресе сохраняются)
+const APP_VERSION = '2026-11-18.4';
+fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(({ v }) => {
+  if (v && v !== APP_VERSION && !sessionStorage.getItem('reloaded-' + v)) {
+    sessionStorage.setItem('reloaded-' + v, '1');
+    const q = new URLSearchParams(location.search); q.set('v', v);
+    location.replace(location.pathname + '?' + q + location.hash);
+  }
+}).catch(() => {});
 const tg = window.Telegram?.WebApp;
 const $ = s => document.querySelector(s);
 const rub = n => Math.round(n).toLocaleString('ru-RU') + ' ₽';
@@ -352,7 +365,7 @@ async function call(path, body = {}) {
   }
   return { ok: false, error: 'network' };
 }
-const P = { ready: false, admin: false, mode: 'client', projects: [], cur: 0, list: [], edit: null, err: '' };
+const P = { ready: false, admin: false, mode: 'client', projects: [], cur: 0, list: [], edit: null, err: '', templates: [] };
 const esc = t => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const dateRu = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) : '';
 const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
@@ -371,7 +384,9 @@ function stagesHtml(stages, edit) {
     const subsHtml = edit
       ? `<div class="subs">${subs.map((u, j) => `<div class="srow${u.done ? ' done' : ''}"><span class="sdot" data-sub="${i}:${j}"></span>
           <input data-sname="${i}:${j}" value="${esc(u.name)}" placeholder="Название подпункта"><button class="sdel" data-sdel="${i}:${j}" aria-label="Удалить">×</button></div>`).join('')}
-          <button class="sadd" data-sadd="${i}">+ подпункт</button></div>`
+          ${(P.templates[i] || []).filter(n => !subs.some(u => u.name === n)).length ? `<div class="sugg">${(P.templates[i] || []).filter(n => !subs.some(u => u.name === n))
+            .map(n => `<button data-ssug="${i}" data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}</div>` : ''}
+          <button class="sadd" data-sadd="${i}">+ свой подпункт</button></div>`
       : subs.length ? `<div class="subs">${subs.map(u => `<div class="srow${u.done ? ' done' : ''}"><span class="sdot"></span><span>${esc(u.name)}</span></div>`).join('')}</div>` : '';
     return `<div class="stg"><div class="row ${x.done ? 'done' : i === now ? 'now' : 'todo'}">
       <span class="dot"${edit ? ` data-stage="${i}"` : ''}></span><span class="n">${esc(x.name)}${!edit && cnt ? `<small>${cnt}</small>` : ''}</span>
@@ -510,7 +525,7 @@ async function initProjects(code) {
   const me = await call('me');
   P.ready = true;
   if (me.ok) {
-    P.admin = me.admin; P.projects = me.projects || [];
+    P.admin = me.admin; P.projects = me.projects || []; P.templates = me.templates || [];
     if (P.admin) {
       P.mode = 'list';
       document.querySelector('.tile.wide b').textContent = 'Проекты';
@@ -527,9 +542,14 @@ async function initProjects(code) {
 }
 
 document.addEventListener('click', e => {
-  const pe = e.target.closest('[data-act],[data-stage],[data-code],[data-pi],[data-sub],[data-sadd],[data-sdel]');
+  const pe = e.target.closest('[data-act],[data-stage],[data-code],[data-pi],[data-sub],[data-sadd],[data-sdel],[data-ssug]');
   if (pe && pe.closest('#s-project')) {
     // подпункты: сначала забираем введённое, потом меняем список
+    if (pe.dataset.ssug !== undefined) {
+      Object.assign(P.edit, collectEdit());
+      P.edit.stages[+pe.dataset.ssug].subs.push({ name: pe.dataset.name, done: false });
+      renderProject(); haptic(); return;
+    }
     if (pe.dataset.sub || pe.dataset.sdel || pe.dataset.sadd !== undefined) {
       Object.assign(P.edit, collectEdit());
       if (pe.dataset.sadd !== undefined) {
