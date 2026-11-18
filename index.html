@@ -93,7 +93,12 @@
   .addon.on .sw { background: var(--accent); } .addon.on .sw i { transform: translateX(16px); }
   .calcbar { position: absolute; left: 16px; right: 16px; bottom: 16px; height: 68px; border-radius: 20px; background: var(--dark); color: #f4f1ea;
              display: flex; align-items: center; padding: 0 8px 0 20px; z-index: 5; box-shadow: 0 8px 24px rgba(31,29,26,.18); }
-  .calcbar .sum { font: 600 27px/1 var(--serif); } .calcbar .t { font-size: 12px; color: #b9b2a6; margin-top: 4px; }
+  .calcbar .sum { font: 600 27px/1 var(--serif); }
+  .calcbar .t s { color: #9a948a; }
+  /* цена и срок сжимаются, кнопка всегда в одну строку */
+  .calcbar > div:first-child { min-width: 0; } .calcbar .sum, .calcbar .t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .calcbar button { flex: none; white-space: nowrap; margin-left: 12px; }
+  .old { margin-right: 6px; color: var(--faint); font-weight: 400; } .calcbar .t { font-size: 12px; color: #b9b2a6; margin-top: 4px; }
   .calcbar button { margin-left: auto; height: 52px; padding: 0 16px; border-radius: 12px; border: 0; background: var(--sand); color: var(--dark); font: 500 14px Inter; cursor: pointer; }
 
   .proj { margin-top: 12px; padding: 16px; border-radius: 16px; background: var(--dark); color: #f4f1ea; }
@@ -218,7 +223,7 @@
 const BOT = 'ra_building_bot', CHANNEL = 'https://t.me/ra_building';
 // Telegram держит старую копию приложения до 10 минут и дольше. При открытии сверяем версию
 // с version.json и, если вышла новая, перезагружаемся на свежую (данные Telegram в адресе сохраняются)
-const APP_VERSION = '2026-11-18.4';
+const APP_VERSION = '2026-11-18.5';
 fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(({ v }) => {
   if (v && v !== APP_VERSION && !sessionStorage.getItem('reloaded-' + v)) {
     sessionStorage.setItem('reloaded-' + v, '1');
@@ -251,9 +256,10 @@ const variant = () => typeOf().calc.variants?.[S.v];
 const priceText = (n, c) => n ? rub(n) + (c.suffix || '') : 'бесплатно';
 function pick(id) { S.type = id; S.count = typeOf().calc.incl || 0; S.v = 0; }
 // Та же формула, что в боте (bot.py: parse_calc)
-function total() {
+// useOld – посчитать по цене без скидки (для зачёркнутой цены у комплектов)
+function total(useOld = false) {
   const c = typeOf().calc;
-  let sum = c.variants ? variant().price : c.base + (c.unit ? Math.max(0, S.count - c.incl) / c.step * c.per : 0);
+  let sum = c.variants ? (useOld && variant().old || variant().price) : c.base + (c.unit ? Math.max(0, S.count - c.incl) / c.step * c.per : 0);
   for (const a of addonsFor()) if (S.on.has(a.id) && a.price) sum += addonPrice(a);
   if (S.on.has('urgent')) sum *= 1.3;
   return Math.floor(sum / 1000 + .5) * 1000;
@@ -272,15 +278,18 @@ function renderCalc() {
   }
   $('#vblock').style.display = c.variants ? '' : 'none';
   if (c.variants) $('#variants').innerHTML = c.variants.map((v, i) => `<div class="addon${i === S.v ? ' on' : ''}" data-variant="${i}"><span class="n">${v.name}<small>${v.hint}</small></span>
-    <span class="v">${priceText(v.price, c)}</span><span class="radio"></span></div>`).join('');
+    <span class="v">${v.old ? `<s class="old">${rub(v.old)}</s>` : ''}${priceText(v.price, c)}</span><span class="radio"></span></div>`).join('');
   const vis = addonsFor();
   for (const id of [...S.on]) if (!vis.some(a => a.id === id)) S.on.delete(id);
   $('#ablock').style.display = vis.length ? '' : 'none';
   $('#addons').innerHTML = vis.map(a => `<div class="addon${S.on.has(a.id) ? ' on' : ''}" data-addon="${a.id}"><span class="n">${a.name}<small>${a.hint || ''}</small></span>
     <span class="v">${a.pct ? '+' + a.pct + '%' : '+' + rub(addonPrice(a))}</span><span class="sw"><i></i></span></div>`).join('');
   const sum = total();
+  // У комплектов рядом с ценой зачёркнутая цена без скидки
+  const full = variant()?.old ? total(true) : 0;
   $('#sum').textContent = sum ? rub(sum) : 'Бесплатно';
-  $('#term').textContent = (c.suffix ? c.suffix.trim() : 'примерно · ' + (variant()?.term || s.term)) + (S.on.has('urgent') ? ', быстрее на треть' : '');
+  // Вторая строка: у комплектов зачёркнутая цена без скидки, у остальных «примерно», дальше срок
+  $('#term').innerHTML = (c.suffix ? c.suffix.trim() : (full > sum ? `<s>${rub(full)}</s>` : 'примерно') + ' · ' + (variant()?.term || s.term)) + (S.on.has('urgent') ? ' · срочно' : '');
 }
 
 function drawPattern() {
@@ -331,7 +340,7 @@ function openSheet(id) {
   $('#sheet-body').innerHTML = `<div class="eyebrow">${s.term}</div><h2 style="margin-top:6px">${s.name}</h2><p class="lead">${s.desc}</p>
     <div class="box"><span>Цена</span><div class="sum">${s.price}</div></div>
     ${s.inc.length ? `<div class="sub">Входит в цену</div><div class="list">${s.inc.map(i => `<div class="ok">${i}</div>`).join('')}</div>` : ''}
-    ${c.variants ? `<div class="sub">Варианты</div>${rows(c.variants.map(v => [v.name, priceText(v.price, c)]))}` : ''}
+    ${c.variants ? `<div class="sub">Варианты</div>${rows(c.variants.map(v => [v.name, (v.old ? `<s class="old">${rub(v.old)}</s>` : '') + priceText(v.price, c)]))}` : ''}
     ${more.length ? `<div class="sub">${c.variants ? 'Дополнительно' : 'Цену увеличивает'}</div>${rows(more)}` : ''}`;
   $('#sheet').dataset.svc = id;
   $('#sheet-body').scrollTop = 0;
@@ -587,7 +596,8 @@ $('#back').addEventListener('click', back);
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'pcode') projectAct('open'); });
 $('#range').addEventListener('input', e => { S.count = +e.target.value; renderCalc(); });
 
-fetch('prices.json').then(r => r.json()).then(p => {
+// Метка версии в адресе: иначе Telegram отдаёт старый файл цен из своего кэша
+fetch('prices.json?v=' + APP_VERSION).then(r => r.json()).then(p => {
   PR = p;
   const card = s => `<div class="svc" data-svc="${s.id}"><div class="top"><b>${s.name}</b><span class="p">${s.price}</span></div>
     <div class="who">${s.who}</div><div class="term">${s.term}</div></div>`;
