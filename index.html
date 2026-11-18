@@ -161,6 +161,19 @@
   .bind { margin-top: 12px; padding: 12px 16px; border-radius: 12px; background: var(--soft); display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
   .bind button, .link-btn { border: 0; background: none; color: var(--accent); font: 500 13px Inter; cursor: pointer; padding: 0; }
   .danger { display: block; margin: 24px auto 8px; font-size: 14px; }
+  /* Подтверждение удаления: карточка снизу, кнопка оживает только после ввода номера */
+  .confirm { position: absolute; left: 0; right: 0; bottom: 0; z-index: 11; background: var(--paper); border-radius: 20px 20px 0 0; padding: 8px 20px calc(20px + env(safe-area-inset-bottom));
+             transform: translateY(100%); transition: transform .4s cubic-bezier(.22,1,.36,1); }
+  .confirm-open .backdrop { opacity: 1; pointer-events: auto; } .confirm-open .confirm { transform: none; }
+  .confirm h3 { font: 500 20px/1.2 Inter; margin: 16px 0 8px; }
+  .confirm p { color: var(--muted); margin: 0 0 8px; }
+  .confirm .warn { color: var(--ink); }
+  .confirm label { display: block; color: var(--muted); font-size: 13px; margin: 16px 0 8px; }
+  .confirm input { width: 100%; height: 44px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); padding: 0 12px; font: 500 16px Inter; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .confirm input:focus { outline: none; border-color: var(--faint); }
+  .confirm .go { width: 100%; height: 48px; margin-top: 16px; border: 0; border-radius: 12px; background: var(--accent); color: #fff; font: 500 15px Inter; cursor: pointer; transition: opacity .15s; }
+  .confirm .go:disabled { opacity: .35; cursor: default; }
+  .confirm .no { width: 100%; height: 44px; margin-top: 4px; border: 0; background: none; color: var(--ink); font: 500 15px Inter; cursor: pointer; }
   .toast { position: absolute; left: 50%; bottom: 84px; z-index: 20; width: max-content; max-width: calc(100% - 32px); transform: translate(-50%, 8px); opacity: 0; pointer-events: none;
            padding: 12px 16px; border-radius: 12px; background: var(--dark); color: #f4f1ea; font-size: 14px; transition: opacity .3s cubic-bezier(.22,1,.36,1), transform .3s cubic-bezier(.22,1,.36,1); }
   .toast.on { opacity: 1; transform: translate(-50%, 0); }
@@ -208,6 +221,7 @@
 
     <div class="toast" id="toast"></div>
     <div class="backdrop" id="backdrop"></div>
+    <div class="confirm" id="confirm" role="dialog" aria-modal="true"><div class="grab"></div><div id="confirm-body"></div></div>
     <div class="sheet" id="sheet"><div class="grab"></div><div class="scroll" id="sheet-body"></div><button class="cta" id="sheet-cta">Рассчитать стоимость</button></div>
   </div>
 
@@ -223,7 +237,7 @@
 const BOT = 'ra_building_bot', CHANNEL = 'https://t.me/ra_building';
 // Telegram держит старую копию приложения до 10 минут и дольше. При открытии сверяем версию
 // с version.json и, если вышла новая, перезагружаемся на свежую (данные Telegram в адресе сохраняются)
-const APP_VERSION = '2026-11-18.5';
+const APP_VERSION = '2026-11-18.6';
 fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(({ v }) => {
   if (v && v !== APP_VERSION && !sessionStorage.getItem('reloaded-' + v)) {
     sessionStorage.setItem('reloaded-' + v, '1');
@@ -319,11 +333,12 @@ function go(id) {
 // «Назад» слева сверху: в Telegram – штатная кнопка в шапке, в браузере – своя. Ведёт на главную или закрывает карточку
 const inTelegram = () => !!tg && tg.platform && tg.platform !== 'unknown';
 function syncBack() {
-  const need = cur !== 'home' || $('#app').classList.contains('sheet-open');
+  const need = cur !== 'home' || $('#app').classList.contains('sheet-open') || $('#app').classList.contains('confirm-open');
   if (inTelegram() && tg.BackButton) need ? tg.BackButton.show() : tg.BackButton.hide();
   else { $('#back').classList.toggle('on', need); $('#app').classList.toggle('has-back', need); }
 }
 function back() {
+  if ($('#app').classList.contains('confirm-open')) return closeConfirm();
   if ($('#app').classList.contains('sheet-open')) return closeSheet();
   if (cur === 'project' && P.admin && P.mode !== 'list') { P.mode = 'list'; P.edit = null; renderProject(); return syncBack(); }
   go('home');
@@ -521,13 +536,40 @@ async function projectAct(act) {
     if (r.ok) { P.edit = r.project; renderProject(); toast('Проект отвязан, его можно открыть заново'); loadAdminList(); }
     return;
   }
-  if (act === 'delete') {
-    const sure = await new Promise(res => tg?.showConfirm ? tg.showConfirm(`Удалить проект ${P.edit.code}? Клиент больше не сможет его открыть.`, res) : res(confirm('Удалить проект?')));
-    if (!sure) return;
-    const r = await call('delete', { code: P.edit.code });
-    if (r.ok) { P.mode = 'list'; P.edit = null; toast('Проект удалён'); await loadAdminList(); syncBack(); }
-  }
+  if (act === 'delete') return openConfirm();
 }
+
+// Удаление в два шага: предупреждение и ввод номера проекта
+const num = code => String(code).replace(/\D/g, '');
+function openConfirm() {
+  const p = P.edit, n = num(p.code);
+  const who = p.client_username ? `@${esc(p.client_username)}` : p.client_tg_name ? esc(p.client_tg_name) : '';
+  const facts = [p.client_id ? `Клиент${who ? ' ' + who : ''} уже открыл проект и потеряет к нему доступ` : '',
+                 p.paid ? `Отмечено оплаты: ${rub(p.paid)}` : ''].filter(Boolean);
+  $('#confirm-body').innerHTML = `<h3>Удалить ${p.code}?</h3>
+    <p>${esc(p.client)} · ${esc(p.service)}. Проект пропадёт у вас и у клиента вместе с этапами, оплатой и ссылками</p>
+    ${facts.map(f => `<p class="warn">${f}</p>`).join('')}
+    <label for="confirm-code">Чтобы подтвердить, введите номер ${n}</label>
+    <input id="confirm-code" inputmode="numeric" autocomplete="off">
+    <button class="go" id="confirm-go" disabled>Удалить навсегда</button>
+    <button class="no" id="confirm-no">Отмена</button>`;
+  $('#toast').classList.remove('on');
+  $('#app').classList.add('confirm-open'); syncBack();
+  tg?.HapticFeedback?.notificationOccurred?.('warning');
+  setTimeout(() => $('#confirm-code').focus(), 350);
+}
+const closeConfirm = () => { $('#app').classList.remove('confirm-open'); syncBack(); };
+async function confirmDelete() {
+  const code = P.edit.code, typed = $('#confirm-code').value;
+  if (num(typed) !== num(code)) return;
+  $('#confirm-go').disabled = true; $('#confirm-go').textContent = 'Удаляем…';
+  const r = await call('delete', { code, confirm: code });
+  if (!r.ok) { $('#confirm-go').disabled = false; $('#confirm-go').textContent = 'Удалить навсегда'; return toast('Не удалось удалить, попробуйте ещё раз'); }
+  closeConfirm(); P.mode = 'list'; P.edit = null; toast(`Проект ${code} удалён`);
+  tg?.HapticFeedback?.notificationOccurred?.('success');
+  await loadAdminList(); syncBack();
+}
+document.addEventListener('input', e => { if (e.target.id === 'confirm-code') $('#confirm-go').disabled = num(e.target.value) !== num(P.edit?.code || ''); });
 
 async function initProjects(code) {
   if (!inTelegram()) { P.ready = true; return renderProject(); }
@@ -551,6 +593,9 @@ async function initProjects(code) {
 }
 
 document.addEventListener('click', e => {
+  if (e.target.closest('#confirm-go')) return confirmDelete();
+  if (e.target.closest('#confirm-no') || ($('#app').classList.contains('confirm-open') && e.target.id === 'backdrop')) return closeConfirm();
+  if ($('#app').classList.contains('confirm-open') && !e.target.closest('#confirm')) closeConfirm();  // ушли на другую вкладку
   const pe = e.target.closest('[data-act],[data-stage],[data-code],[data-pi],[data-sub],[data-sadd],[data-sdel],[data-ssug]');
   if (pe && pe.closest('#s-project')) {
     // подпункты: сначала забираем введённое, потом меняем список
@@ -593,7 +638,11 @@ document.addEventListener('click', e => {
   else if (el.id === 'backdrop') closeSheet();
 });
 $('#back').addEventListener('click', back);
-document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'pcode') projectAct('open'); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.id === 'pcode') projectAct('open');
+  if (e.key === 'Enter' && e.target.id === 'confirm-code') confirmDelete();
+  if (e.key === 'Escape' && $('#app').classList.contains('confirm-open')) closeConfirm();
+});
 $('#range').addEventListener('input', e => { S.count = +e.target.value; renderCalc(); });
 
 // Метка версии в адресе: иначе Telegram отдаёт старый файл цен из своего кэша
