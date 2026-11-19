@@ -157,7 +157,21 @@
   .wide-btn.sand { background: var(--sand); border-color: var(--sand); color: var(--dark); }
   .meta { margin-top: 12px; display: flex; justify-content: space-between; gap: 8px; padding: 0 4px; font-size: 14px; color: var(--muted); } .meta b { color: var(--ink); font-weight: 500; }
   .note { margin-top: 12px; padding: 16px; border-radius: 16px; background: var(--soft); font-size: 14px; white-space: pre-line; }
-  .note span { display: block; font: 400 12px var(--mono); color: var(--faint); margin-bottom: 4px; }
+  .note span { display: block; font-size: 12px; color: var(--faint); margin-bottom: 4px; }
+  /* «Ждём от вас»: что нужно от клиента, чтобы работа шла дальше */
+  .asks { margin-top: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 16px; }
+  .asks .ah { font-size: 12px; color: var(--faint); }
+  .ask { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-top: 1px solid var(--line); font-size: 14px; }
+  .ah + .ask { border-top: 0; }
+  .ask button { flex: none; height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font: 500 13px Inter; cursor: pointer; }
+  .ask .sent { flex: none; font-size: 13px; color: var(--faint); }
+  .asks .ahint { margin-top: 4px; font-size: 12px; color: var(--faint); }
+  /* Тестовая версия: показ, ссылка, «Принять» или «Есть правки» */
+  .rv { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; } .rv .wide-btn { margin-top: 0; }
+  .rvnote { margin-top: 8px; font-size: 13px; color: var(--muted); text-align: center; }
+  .paynote { margin-top: 8px; font-size: 12px; color: var(--faint); }
+  .calcnote { margin-top: 4px; font-size: 13px; color: var(--faint); }
+  .astate { flex: none; font-size: 12px; color: var(--accent); }
   .f label { display: block; font: 400 13px Inter; color: var(--muted); margin-bottom: 4px; }
   .ap { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-top: 8px; cursor: pointer; transition: transform .15s cubic-bezier(.22,1,.36,1); }
   .ap:active { transform: scale(.98); }
@@ -209,7 +223,7 @@
         <div class="tile" data-go="lead"><span class="ico"><svg class="i" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M5.796 18.204L21.512 2.488c-.988-.989-2.86-.364-6.606.884l-9.331 3.11c-2.082.694-3.123 1.041-3.439 1.804q-.112.271-.133.564c-.059.824.717 1.6 2.269 3.151l.283.283c.254.254.382.382.478.523c.19.28.297.607.31.945c.008.171-.019.35-.072.705c-.196 1.304-.294 1.956-.179 2.458c.114.495.362.938.704 1.289" clip-rule="evenodd"/><path fill="currentColor" d="m17.498 18.486l3.13-9.392c1.25-3.745 1.873-5.617.885-6.606L5.797 18.204c.348.356.794.617 1.296.74c.5.122 1.153.033 2.46-.144l.071-.01c.369-.05.553-.075.73-.064c.32.02.63.124.898.303c.147.099.278.23.541.493l.251.251c1.51 1.51 2.266 2.265 3.067 2.226c.22-.01.438-.062.64-.151c.734-.323 1.072-1.336 1.747-3.362" opacity=".5"/></svg></span><div><b>Заявка</b><br><span>в чате бота</span></div></div>
         <div class="tile" data-go="channel"><span class="ico"><svg class="i" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path fill="currentColor" d="M18.5116 10.827C18.5116 11.5657 17.8869 12.1645 17.1163 12.1645C16.3457 12.1645 15.7209 11.5657 15.7209 10.827C15.7209 10.0884 16.3457 9.48957 17.1163 9.48957C17.8869 9.48957 18.5116 10.0884 18.5116 10.827Z"/><path fill="currentColor" fill-rule="evenodd" d="M18.0363 6.28242C16.9766 6.14585 15.6225 6.14586 13.9129 6.14587H10.0871C8.37751 6.14586 7.02343 6.14585 5.9637 6.28242C4.87308 6.42297 3.99033 6.7191 3.29418 7.38638C2.59803 8.05366 2.28908 8.89979 2.14245 9.94518C1.99997 10.961 1.99999 12.2589 2 13.8975V13.9981C1.99999 15.6368 1.99997 16.9347 2.14245 17.9505C2.28908 18.9959 2.59803 19.842 3.29418 20.5093C3.99033 21.1766 4.87307 21.4727 5.9637 21.6132C7.02344 21.7498 8.37751 21.7498 10.0871 21.7498H13.9129C15.6225 21.7498 16.9766 21.7498 18.0363 21.6132C19.1269 21.4727 20.0097 21.1766 20.7058 20.5093C21.402 19.842 21.7109 18.9959 21.8575 17.9505C22 16.9347 22 15.6368 22 13.9981V13.8975C22 12.2589 22 10.961 21.8575 9.94518C21.7109 8.89979 21.402 8.05366 20.7058 7.38638C20.0097 6.7191 19.1269 6.42297 18.0363 6.28242ZM6.14963 7.60797C5.21373 7.72858 4.67452 7.95476 4.28084 8.33212C3.88716 8.70947 3.65119 9.22631 3.52536 10.1234C3.42443 10.8429 3.40184 11.7423 3.3968 12.9186L3.86764 12.5237C4.99175 11.5809 6.68596 11.635 7.74215 12.6474L11.7326 16.4723C12.1321 16.8553 12.7611 16.9075 13.2234 16.5961L13.5008 16.4092C14.8313 15.5129 16.6314 15.6168 17.8402 16.6596L20.2479 18.7366C20.3463 18.4725 20.4206 18.1575 20.4746 17.7723C20.6032 16.8559 20.6047 15.648 20.6047 13.9478C20.6047 12.2476 20.6032 11.0397 20.4746 10.1234C20.3488 9.22631 20.1128 8.70947 19.7192 8.33212C19.3255 7.95476 18.7863 7.72858 17.8504 7.60797C16.8944 7.48477 15.6343 7.48335 13.8605 7.48335H10.1395C8.36575 7.48335 7.10559 7.48477 6.14963 7.60797Z" clip-rule="evenodd"/><path fill="currentColor" d="M17.0876 3.36039C16.2278 3.24997 15.1331 3.24998 13.7685 3.25H10.6788C9.31412 3.24998 8.21942 3.24997 7.35961 3.36039C6.46924 3.47473 5.72689 3.71835 5.1381 4.28075C4.79853 4.6051 4.56983 4.97833 4.41406 5.39928C4.91826 5.16928 5.48831 5.03374 6.12833 4.95084C7.21271 4.81037 8.59827 4.81038 10.3476 4.81039H14.2624C16.0117 4.81038 17.3973 4.81037 18.4817 4.95084C19.0407 5.02325 19.5463 5.13581 20.0013 5.31638C19.8466 4.92917 19.6262 4.58365 19.3091 4.28075C18.7203 3.71835 17.978 3.47473 17.0876 3.36039Z" opacity=".5"/></svg></span><div><b>Работы</b><br><span>скоро</span></div></div>
       </div>
-      <div class="rowlink"><span>Уже работаете с нами?</span><a data-go="project"><b>Мой проект</b><span class="arrow">›</span></a></div>
+      <div class="rowlink"><span id="home-proj-l">Уже работаете с нами?</span><a data-go="project"><b id="home-proj-r">Мой проект</b><span class="arrow">›</span></a></div>
       <div class="rowlink"><span id="reply">Отвечаем в течение часа</span><a data-go="manager">@ra_studio_manager</a></div>
     </div></section>
 
@@ -220,6 +234,7 @@
 
     <section class="screen" id="s-calc"><div class="scroll">
       <h2>Расчёт стоимости</h2><p class="lead">Примерная цена по нашему прайсу. Точную назовём после созвона.</p>
+      <p class="calcnote">Отправка в бот ни к чему не обязывает: это заявка, а не оплата. Оплата только напрямую через менеджера.</p>
       <div class="sub">Что делаем</div><div id="types"></div>
       <div class="incl" id="incl"></div>
       <div class="slider" id="slider"><div class="lab"><span id="sl-name"></span><b id="sl-val"></b></div><input type="range" id="range"></div>
@@ -248,7 +263,7 @@
 const BOT = 'ra_building_bot', CHANNEL = 'https://t.me/ra_building';
 // Telegram держит старую копию приложения до 10 минут и дольше. При открытии сверяем версию
 // с version.json и, если вышла новая, перезагружаемся на свежую (данные Telegram в адресе сохраняются)
-const APP_VERSION = '2026-11-19.1';
+const APP_VERSION = '2026-11-19.2';
 fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(({ v }) => {
   if (v && v !== APP_VERSION && !sessionStorage.getItem('reloaded-' + v)) {
     sessionStorage.setItem('reloaded-' + v, '1');
@@ -322,6 +337,7 @@ function renderCalc() {
   const full = variant()?.old ? total(true) : 0;
   $('#sum').textContent = sum ? rub(sum) : 'Бесплатно';
   // Вторая строка: у комплектов зачёркнутая цена без скидки, дальше срок («примерная цена» сказано в заголовке)
+  saveCalc();
   $('#term').innerHTML = (c.suffix ? c.suffix.trim() : (full > sum ? `<s>${rub(full)}</s> · ` : '') + (variant()?.term || s.term)) + (S.on.has('urgent') ? ' · срочно' : '');
 }
 
@@ -403,6 +419,18 @@ function applyCalcCode(code) {
   for (const a of addonsFor()) if (a.code && codes.includes(a.code)) S.on.add(a.id);
   return true;
 }
+// Последний расчёт помним в облаке Telegram (на всех устройствах человека), в браузере – в localStorage
+const cloud = () => tg?.CloudStorage && tg.isVersionAtLeast?.('6.9') ? tg.CloudStorage : null;
+let calcReady = false, calcTouched = false;
+function saveCalc() {
+  if (!calcReady) return;
+  clearTimeout(saveCalc.t);
+  saveCalc.t = setTimeout(() => { const v = calcCode(); try { cloud() ? cloud().setItem('calc', v) : localStorage.setItem('ra-calc', v); } catch {} }, 500);
+}
+const loadCalc = () => new Promise(res => {
+  try { cloud() ? cloud().getItem('calc', (e, v) => res(e ? null : v)) : res(localStorage.getItem('ra-calc')); } catch { res(null); }
+  setTimeout(() => res(null), 1500);
+});
 // «Переслать расчёт»: ссылка открывает тот же расчёт у партнёра, бухгалтера, кого угодно
 function shareCalc() {
   const s = typeOf(), c = s.calc, sum = total();
@@ -466,6 +494,25 @@ function stagesHtml(stages, edit) {
   }).join('')}</div>`;
 }
 
+// «Ждём от вас»: открытые пункты с кнопкой «Отправил», отправленные серым
+function asksHtml(p) {
+  const list = (p.asks || []).filter(a => a.state !== 'done');
+  if (!list.length) return '';
+  return `<div class="asks"><div class="ah">Ждём от вас</div>${list.map(a => `<div class="ask"><span>${esc(a.name)}</span>${a.state === 'sent'
+    ? '<span class="sent">Отправлено</span>' : `<button data-ask="${esc(a.id)}">Отправил</button>`}</div>`).join('')}
+    <div class="ahint">Присылайте менеджеру в чат и отмечайте здесь</div></div>`;
+}
+// Этапы, где клиент смотрит тестовую версию (те же, что в боте)
+const REVIEW_STAGES = [1, 2, 3];
+const reviewStage = p => { const i = p.stages.findIndex(x => !x.done); return p.demo_url && REVIEW_STAGES.includes(i) ? p.stages[i] : null; };
+function reviewHtml(p) {
+  const st = reviewStage(p);
+  if (!st) return '';
+  if (st.accepted && st.accepted >= (st.changes || '')) return `<div class="rvnote">Вы приняли этап «${esc(st.name)}» ${dateRu(st.accepted.slice(0, 10))}</div>`;
+  return `<div class="rvnote">${st.changes ? 'Правки отправлены, менеджер в курсе. Когда всё устроит, примите этап' : `Этап «${esc(st.name)}»: всё устраивает?`}</div>
+    <div class="rv"><button class="wide-btn" data-act="accept">Принять этап</button><button class="wide-btn" data-act="changes">Есть правки</button></div>`;
+}
+
 function renderProject() {
   const v = $('#proj');
   if (!P.ready) { v.innerHTML = `<h2>Мой проект</h2><p class="lead">Загружаем</p>`; cta('Начать с расчёта', 'calc'); return; }
@@ -485,13 +532,24 @@ function renderProject() {
   }
   const switcher = P.projects.length > 1 ? `<div class="chips">${P.projects.map((x, i) => `<div class="chip${i === P.cur ? ' on' : ''}" data-pi="${i}">${x.code}</div>`).join('')}</div>` : '';
   v.innerHTML = `<h2>Проект ${p.code}</h2><p class="lead">${esc(p.service)}${p.updated ? ` · обновлён ${dateRu(p.updated.slice(0, 10))}` : ''}</p>${switcher}
-    ${stagesHtml(p.stages, false)}
-    ${p.demo_url ? `<button class="wide-btn sand" data-act="demo">Открыть тестовую версию</button>` : ''}
-    ${p.next_demo ? `<div class="meta"><span>Следующий показ</span><b>${dateRu(p.next_demo)}</b></div>` : ''}
-    ${p.total ? `<div class="box pay"><span>Оплачено</span><div class="sum">${rub(p.paid)} <small>из ${rub(p.total)}</small></div><div class="bar"><i style="width:${pct(p.paid, p.total)}%"></i></div></div>` : ''}
     ${p.note ? `<div class="note"><span>Комментарий менеджера</span>${esc(p.note)}</div>` : ''}
+    ${asksHtml(p)}
+    ${p.next_demo ? `<div class="meta"><span>Следующий показ</span><b>${dateRu(p.next_demo)}</b></div>` : ''}
+    ${p.demo_url ? `<button class="wide-btn sand" data-act="demo">Открыть тестовую версию</button>` : ''}
+    ${reviewHtml(p)}
+    ${stagesHtml(p.stages, false)}
+    ${p.total ? `<div class="box pay"><span>Оплачено</span><div class="sum">${rub(p.paid)} <small>из ${rub(p.total)}</small></div><div class="bar"><i style="width:${pct(p.paid, p.total)}%"></i></div>
+      <div class="paynote">Оплата напрямую через менеджера, в приложении и боте деньги не списываются</div></div>` : ''}
     <div style="text-align:center;margin-top:16px"><button class="link-btn" data-act="other">Открыть другой номер</button></div>`;
   cta('Написать менеджеру', 'manager');
+}
+
+function asksEditHtml(p) {
+  const list = p.asks || [], sugg = (P.askSuggest || []).filter(n => !list.some(a => a.name === n));
+  return `<div class="tl edit"><div class="subs" style="padding:8px 0">${list.map((a, k) => `<div class="srow${a.state === 'done' ? ' done' : ''}"><span class="sdot" data-askdone="${k}"></span>
+      <input data-askname="${k}" value="${esc(a.name)}" placeholder="Что нужно от клиента">${a.state === 'sent' ? '<span class="astate">прислал</span>' : ''}<button class="sdel" data-askdel="${k}" aria-label="Удалить">×</button></div>`).join('')}
+    ${sugg.length ? `<div class="sugg">${sugg.map(n => `<button data-asksug data-name="${esc(n)}">+ ${esc(n)}</button>`).join('')}</div>` : ''}
+    <button class="sadd" data-askadd>+ свой пункт</button></div></div>`;
 }
 
 function renderAdmin(v) {
@@ -508,6 +566,7 @@ function renderAdmin(v) {
       <div class="bind">${p.client_id ? `<span>Клиент открыл проект${p.client_username ? `: @${esc(p.client_username)}` : p.client_tg_name ? `: ${esc(p.client_tg_name)}` : ''}</span><button data-act="unbind">Отвязать</button>`
         : '<span>Клиент ещё не открывал проект</span>'}</div>
       <button class="wide-btn sand" data-act="share">Отправить ссылку клиенту</button>
+      <div class="sub">Ждём от клиента · он видит это вверху проекта</div>${asksEditHtml(p)}
       <div class="sub">Этапы · нажмите на кружок</div>${stagesHtml(p.stages, true)}
       <div class="sub">Оплата</div><div class="f2"><div class="f"><label>Сумма, ₽</label><input id="e-total" inputmode="numeric" value="${p.total || ''}"></div>
         <div class="f"><label>Оплачено, ₽</label><input id="e-paid" inputmode="numeric" value="${p.paid || ''}"></div></div>
@@ -523,7 +582,7 @@ function renderAdmin(v) {
   }
   v.innerHTML = `<h2>Проекты</h2><p class="lead">Номера для клиентов, этапы и оплата</p>
     ${P.list.length ? P.list.map(x => `<div class="ap" data-code="${x.code}"><div class="top"><b>${esc(x.client)}</b><span class="code">${x.code}</span></div>
-      <div class="st">${esc(x.service)} · ${esc(x.stage)}${x.bound ? '' : ' · клиент не открывал'}</div>
+      <div class="st">${esc(x.service)} · ${esc(x.stage)}${x.bound ? '' : ' · клиент не открывал'}${x.asks ? ` · ждём от клиента: ${x.asks}${x.asks_sent ? `, прислал ${x.asks_sent}` : ''}` : ''}</div>
       ${x.total ? `<div class="bar"><i style="width:${pct(x.paid, x.total)}%"></i></div>` : ''}</div>`).join('')
       : '<div class="empty">Пока нет проектов. Создайте первый, и номер появится здесь</div>'}`;
   cta('Новый проект', 'new');
@@ -540,14 +599,39 @@ function collectEdit() {
   p.stages.forEach(x => { x.subs = x.subs || []; });
   document.querySelectorAll('[data-sdate]').forEach(el => { p.stages[+el.dataset.sdate].date = el.value; });
   document.querySelectorAll('[data-sname]').forEach(el => { const [i, j] = el.dataset.sname.split(':').map(Number); p.stages[i].subs[j].name = el.value; });
-  return { client: $('#e-client').value, service: $('#e-service').value, total: $('#e-total').value, paid: $('#e-paid').value,
+  p.asks = p.asks || [];
+  document.querySelectorAll('[data-askname]').forEach(el => { p.asks[+el.dataset.askname].name = el.value; });
+  return { asks: p.asks.map(a => ({ ...(a.id ? { id: a.id } : {}), name: a.name, done: a.state === 'done' })), client: $('#e-client').value, service: $('#e-service').value, total: $('#e-total').value, paid: $('#e-paid').value,
     demo_url: $('#e-demo').value, next_demo: $('#e-next').value, note: $('#e-note').value, stages: p.stages };
+}
+async function askSent(id, btn) {
+  const p = P.projects[P.cur];
+  btn.disabled = true;
+  const r = await call('ask_sent', { code: p.code, id });
+  if (!r.ok) { btn.disabled = false; return toast('Не получилось, попробуйте ещё раз'); }
+  P.projects[P.cur] = r.project; renderProject();
+  tg?.HapticFeedback?.notificationOccurred?.('success'); toast('Отметили, менеджер проверит');
 }
 async function projectAct(act) {
   if (act === 'calc') return go('calc');
   if (act === 'manager') return openTg('https://t.me/ra_studio_manager');
   if (act === 'demo') { const u = P.projects[P.cur]?.demo_url; return u && (tg?.openLink ? tg.openLink(u) : window.open(u, '_blank')); }
   if (act === 'other') { P.cur = P.projects.length; renderProject(); return; }
+  if (act === 'accept' || act === 'changes') {
+    const p = P.projects[P.cur], st = reviewStage(p);
+    if (!st) return;
+    if (act === 'accept') {
+      const q = `Принять этап «${st.name}»? Менеджер получит сообщение, что результат вас устраивает.`;
+      const sure = await new Promise(res => tg?.isVersionAtLeast?.('6.2') ? tg.showConfirm(q, res) : res(confirm(q)));
+      if (!sure) return;
+    }
+    const r = await call(act, { code: p.code });
+    if (!r.ok) return toast('Не получилось, попробуйте ещё раз');
+    P.projects[P.cur] = r.project; renderProject();
+    tg?.HapticFeedback?.notificationOccurred?.('success');
+    if (act === 'accept') return toast('Спасибо, менеджер получил сообщение');
+    return openTg(`https://t.me/ra_studio_manager?text=${encodeURIComponent(`${p.code}, правки по этапу «${st.name}»: `)}`);
+  }
   if (act === 'open') {
     const code = $('#pcode').value.trim();
     if (!code) return;
@@ -624,11 +708,11 @@ async function initProjects(code) {
   const me = await call('me');
   P.ready = true;
   if (me.ok) {
-    P.admin = me.admin; P.projects = me.projects || []; P.templates = me.templates || [];
+    P.admin = me.admin; P.projects = me.projects || []; P.templates = me.templates || []; P.askSuggest = me.ask_suggest || [];
+    if (!P.admin && P.projects.length) $('#home-proj-l').textContent = 'Ваш проект ' + P.projects[0].code;
     if (P.admin) {
       P.mode = 'list';
-      document.querySelector('.tile.wide b').textContent = 'Проекты';
-      document.querySelector('.tile.wide span span, .tile.wide div span').textContent = 'номера, этапы и оплата';
+      $('#home-proj-l').textContent = 'Номера, этапы и оплата'; $('#home-proj-r').textContent = 'Проекты';
       document.querySelector('[data-tab=project]').lastChild.textContent = 'Проекты';
       await loadAdminList();
     }
@@ -644,8 +728,21 @@ document.addEventListener('click', e => {
   if (e.target.closest('#confirm-go')) return confirmDelete();
   if (e.target.closest('#confirm-no') || ($('#app').classList.contains('confirm-open') && e.target.id === 'backdrop')) return closeConfirm();
   if ($('#app').classList.contains('confirm-open') && !e.target.closest('#confirm')) closeConfirm();  // ушли на другую вкладку
-  const pe = e.target.closest('[data-act],[data-stage],[data-code],[data-pi],[data-sub],[data-sadd],[data-sdel],[data-ssug]');
+  const pe = e.target.closest('[data-act],[data-stage],[data-code],[data-pi],[data-sub],[data-sadd],[data-sdel],[data-ssug],[data-ask],[data-askdone],[data-askdel],[data-askadd],[data-asksug]');
   if (pe && pe.closest('#s-project')) {
+    if (pe.dataset.ask) return askSent(pe.dataset.ask, pe);
+    // «Ждём от клиента» в админке: отметка, удаление, подсказка, свой пункт
+    if (pe.dataset.askdone || pe.dataset.askdel || pe.dataset.askadd !== undefined || pe.dataset.asksug !== undefined) {
+      Object.assign(P.edit, collectEdit());
+      const list = P.edit.asks = P.edit.asks || [];
+      if (pe.dataset.asksug !== undefined) list.push({ name: pe.dataset.name, state: 'open' });
+      else if (pe.dataset.askadd !== undefined) {
+        list.push({ name: '', state: 'open' }); renderProject();
+        return document.querySelector(`[data-askname="${list.length - 1}"]`)?.focus();
+      } else if (pe.dataset.askdel) list.splice(+pe.dataset.askdel, 1);
+      else { const a = list[+pe.dataset.askdone]; a.state = a.state === 'done' ? (a.sent_at ? 'sent' : 'open') : 'done'; }
+      renderProject(); haptic(); return;
+    }
     // подпункты: сначала забираем введённое, потом меняем список
     if (pe.dataset.ssug !== undefined) {
       Object.assign(P.edit, collectEdit());
@@ -678,9 +775,9 @@ document.addEventListener('click', e => {
   if (el.dataset.go) go(el.dataset.go);
   else if (el.dataset.tab) go(el.dataset.tab);
   else if (el.dataset.svc) openSheet(el.dataset.svc);
-  else if (el.dataset.type) { pick(el.dataset.type); renderCalc(); haptic(); }
-  else if (el.dataset.variant) { S.v = +el.dataset.variant; renderCalc(); haptic(); }
-  else if (el.dataset.addon) { const id = el.dataset.addon; S.on.has(id) ? S.on.delete(id) : S.on.add(id); renderCalc(); haptic(); }
+  else if (el.dataset.type) { calcTouched = true; pick(el.dataset.type); renderCalc(); haptic(); }
+  else if (el.dataset.variant) { calcTouched = true; S.v = +el.dataset.variant; renderCalc(); haptic(); }
+  else if (el.dataset.addon) { calcTouched = true; const id = el.dataset.addon; S.on.has(id) ? S.on.delete(id) : S.on.add(id); renderCalc(); haptic(); }
   else if (el.id === 'send') sendToBot();
   else if (el.id === 'share') shareCalc();
   else if (el.id === 'sheet-cta') { pick($('#sheet').dataset.svc); closeSheet(); $('#s-calc .scroll').scrollTop = 0; cur === 'calc' ? renderCalc() : go('calc'); }
@@ -692,7 +789,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.id === 'confirm-code') confirmDelete();
   if (e.key === 'Escape' && $('#app').classList.contains('confirm-open')) closeConfirm();
 });
-$('#range').addEventListener('input', e => { S.count = +e.target.value; renderCalc(); });
+$('#range').addEventListener('input', e => { calcTouched = true; S.count = +e.target.value; renderCalc(); });
 
 // Метка версии в адресе: иначе Telegram отдаёт старый файл цен из своего кэша
 fetch('prices.json?v=' + APP_VERSION).then(r => r.json()).then(p => {
@@ -704,7 +801,8 @@ fetch('prices.json?v=' + APP_VERSION).then(r => r.json()).then(p => {
   $('#types').innerHTML = `<div class="chips">${PR.groups.flatMap(g => g.ids).map(id => `<div class="chip" data-type="${id}">${byId[id].short}</div>`).join('')}</div>`;
   const start = tg?.initDataUnsafe?.start_param || new URLSearchParams(location.search).get('open');
   const pcode = (start || '').startsWith('p_') ? start.slice(2) : new URLSearchParams(location.search).get('p');
-  if ((start || '').startsWith('calc_') && applyCalcCode(start)) go('calc');
+  if ((start || '').startsWith('calc_') && applyCalcCode(start)) { go('calc'); calcReady = true; }
+  else loadCalc().then(v => { if (v && !calcTouched && v.startsWith('calc_') && applyCalcCode(v)) renderCalc(); calcReady = true; });
   if (start === 'calc' || start === 'services' || start === 'project') go(start);
   if (pcode) go('project');
   renderCalc();
