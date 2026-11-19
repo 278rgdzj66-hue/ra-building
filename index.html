@@ -204,13 +204,23 @@
   .tabs { flex: none; display: flex; border-top: 1px solid var(--line); background: var(--card); padding: 8px 0 calc(8px + env(safe-area-inset-bottom)); }
   .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; color: var(--faint); cursor: pointer; padding: 4px 0; }
   .tab.on { color: var(--ink); } .tab.on svg { color: var(--accent); }
+
+  /* Плитки и строки проявляются один раз при открытии */
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+  .intro .tile, .intro .rowlink { animation: rise .42s cubic-bezier(.22,1,.36,1) both; }
+  .intro .tile.wide { animation-delay: .55s; }
+  .intro .tiles .tile:nth-child(2) { animation-delay: .62s; }
+  .intro .tiles .tile:nth-child(3) { animation-delay: .68s; }
+  .intro .tiles .tile:nth-child(4) { animation-delay: .74s; }
+  .intro .rowlink { animation-delay: .82s; }
+  @media (prefers-reduced-motion: reduce) { .intro .tile, .intro .rowlink { animation: none; } }
 </style>
 </head>
 <body>
 <div class="app" id="app">
   <div class="viewport">
     <button id="back" aria-label="Назад"><svg class="i" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5L9 12L15 19"/></svg>Главная</button>
-    <section class="screen on" id="s-home"><div class="scroll">
+    <section class="screen on intro" id="s-home"><div class="scroll">
       <div class="hero"><canvas id="pattern"></canvas>
         <div class="logo">R<i>&amp;</i>A</div>
         <div class="eyebrow">Веб-студия</div>
@@ -263,7 +273,7 @@
 const BOT = 'ra_building_bot', CHANNEL = 'https://t.me/ra_building';
 // Telegram держит старую копию приложения до 10 минут и дольше. При открытии сверяем версию
 // с version.json и, если вышла новая, перезагружаемся на свежую (данные Telegram в адресе сохраняются)
-const APP_VERSION = '2026-11-19.3';
+const APP_VERSION = '2026-11-19.4';
 fetch('version.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(({ v }) => {
   if (v && v !== APP_VERSION && !sessionStorage.getItem('reloaded-' + v)) {
     sessionStorage.setItem('reloaded-' + v, '1');
@@ -313,6 +323,18 @@ function total(useOld = false) {
   return Math.floor(sum / 1000 + .5) * 1000;
 }
 
+// Сумма в калькуляторе плавно доезжает до нового значения за 0,32 с, без вспышек и цвета
+let shown = null;
+function tweenSum(to) {
+  const el = $('#sum');
+  if (!to || shown === null || matchMedia('(prefers-reduced-motion: reduce)').matches) { shown = to; el.textContent = to ? rub(to) : 'Бесплатно'; return; }
+  const from = shown; shown = to; cancelAnimationFrame(tweenSum.r);
+  const t0 = performance.now();
+  const step = now => { const u = ease(Math.min(1, (now - t0) / 320));
+    el.textContent = rub(Math.round((from + (to - from) * u) / 1000) * 1000); if (u < 1) tweenSum.r = requestAnimationFrame(step); };
+  tweenSum.r = requestAnimationFrame(step);
+}
+
 function renderCalc() {
   const s = typeOf(), c = s.calc;
   document.querySelectorAll('.chip').forEach(el => el.classList.toggle('on', el.dataset.type === S.type));
@@ -335,23 +357,75 @@ function renderCalc() {
   const sum = total();
   // У комплектов рядом с ценой зачёркнутая цена без скидки
   const full = variant()?.old ? total(true) : 0;
-  $('#sum').textContent = sum ? rub(sum) : 'Бесплатно';
+  tweenSum(sum);
   // Вторая строка: у комплектов зачёркнутая цена без скидки, дальше срок («примерная цена» сказано в заголовке)
   saveCalc();
   $('#term').innerHTML = (c.suffix ? c.suffix.trim() : (full > sum ? `<s>${rub(full)}</s> · ` : '') + (variant()?.term || s.term)) + (S.on.has('urgent') ? ' · срочно' : '');
 }
 
-function drawPattern() {
-  const c = $('#pattern'), r = c.getBoundingClientRect(), k = 2;
+// Шапка: «сырое» (россыпь символов) складывается в чертёж экрана, один раз за сессию.
+// Около 300 знаков, 1,6 с на canvas, потом кадров нет совсем.
+const SKETCH = [
+  '+----------+',
+  '| =====    |',
+  '| ===  ==  |',
+  '|          |',
+  '| #######> |',
+  '| oo oo oo |',
+  '| oo oo oo |',
+  '+----------+'];
+const NOISE = '0055SSxX+*.:';
+let PT = null;
+function setupPattern() {
+  const c = $('#pattern'), r = c.getBoundingClientRect(), k = Math.min(2, devicePixelRatio || 1);
   c.width = r.width * k; c.height = r.height * k;
-  const g = c.getContext('2d'), W = c.width, H = c.height, cell = 11 * k;
+  const W = c.width, H = c.height, cell = 11 * k;
   let seed = 7; const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
-  g.font = `500 ${cell * .85}px ui-monospace, Menlo, monospace`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  const dust = [];
   for (let y = cell / 2; y < H; y += cell) for (let x = cell / 2; x < W; x += cell) {
     const p = Math.max(0, 1 - y / H * 1.5) * Math.min(1, .15 + x / W * 1.2) * (.55 + .45 * Math.sin(x / W * 9 + y / H * 4));
     if (rnd() > p) continue;
-    g.fillStyle = `rgba(122,113,101,${.15 + rnd() * .3})`; g.fillText('0055SSxX+*.:'[Math.floor(rnd() * 12)], x, y);
+    dust.push({ x, y, a: .15 + rnd() * .3, ch: NOISE[Math.floor(rnd() * 12)] });
   }
+  // чертёж справа сверху, над заголовком, по той же сетке
+  const cols = SKETCH[0].length, x0 = W - cell * (cols + 1), y0 = cell * 1.2, goals = [];
+  SKETCH.forEach((row, j) => [...row].forEach((ch, i) => ch !== ' ' && goals.push({ x: x0 + i * cell, y: y0 + j * cell, ch,
+    color: ch === '>' ? [158, 72, 49] : [92, 85, 76], a: ch === '>' ? .9 : ch === '#' ? .42 : .6 })));
+  // каждому месту чертежа – ближайший свободный знак россыпи; лишние знаки остаются пылью и тускнеют
+  const free = dust.slice(), parts = [];
+  for (const g of goals) {
+    let bi = -1, bd = 1e12;
+    for (let i = 0; i < free.length; i++) { const d = (free[i].x - g.x) ** 2 + (free[i].y - g.y) ** 2; if (d < bd) { bd = d; bi = i; } }
+    const s = bi >= 0 ? free.splice(bi, 1)[0] : { x: g.x + (rnd() - .5) * W * .4, y: g.y + rnd() * H * .3, a: 0, ch: NOISE[0] };
+    parts.push({ ...s, g, delay: rnd() * .35 + (g.y - y0) / (cell * 8) * .15 });
+  }
+  PT = { c, g: c.getContext('2d'), W, H, cell, parts, free, k };
+  PT.g.font = `500 ${cell * .85}px ui-monospace, Menlo, monospace`; PT.g.textAlign = 'center'; PT.g.textBaseline = 'middle';
+}
+const ease = t => 1 - Math.pow(1 - t, 3);
+function frame(t) {
+  const { g, W, H, parts, free } = PT;
+  g.clearRect(0, 0, W, H);
+  for (const d of free) { g.fillStyle = `rgba(122,113,101,${d.a * (1 - .45 * ease(Math.min(1, t * 1.4)))})`; g.fillText(d.ch, d.x, d.y); }
+  for (const p of parts) {
+    const u = ease(Math.max(0, Math.min(1, (t - p.delay) / (1 - .5))));
+    const x = p.x + (p.g.x - p.x) * u, y = p.y + (p.g.y - p.y) * u;
+    // в пути знак перебирает «сырые» символы, на месте встаёт нужный
+    const ch = u >= 1 ? p.g.ch : u > 0 ? NOISE[(Math.floor(t * 40) + Math.round(p.x)) % 12] : p.ch;
+    const [r, gg, b] = u >= 1 ? p.g.color : [122, 113, 101];
+    g.fillStyle = `rgba(${r},${gg},${b},${p.a + (p.g.a - p.a) * u})`; g.fillText(ch, x, y);
+  }
+}
+function drawPattern() {
+  setupPattern();
+  // играет один раз за открытие; если анимации выключены в системе, сразу готовый чертёж
+  let seen = false; try { seen = !!sessionStorage.getItem('ra-intro'); } catch {}
+  if (seen || matchMedia('(prefers-reduced-motion: reduce)').matches) { $('#s-home').classList.remove('intro'); return frame(1); }
+  const DUR = 1600; let t0 = 0;
+  // отметку ставим в конце: если приложение перезагрузится на новую версию посреди сборки, она сыграет заново
+  const step = now => { t0 ||= now; const t = Math.min(1, (now - t0) / DUR); frame(t);
+    if (t < 1) requestAnimationFrame(step); else try { sessionStorage.setItem('ra-intro', '1'); } catch {} };
+  setTimeout(() => requestAnimationFrame(step), 250);
 }
 
 let cur = 'home';
@@ -808,7 +882,8 @@ fetch('prices.json?v=' + APP_VERSION).then(r => r.json()).then(p => {
   renderCalc();
   initProjects(pcode);
 });
-document.fonts.ready.then(drawPattern);
+// ждём шрифты, но не дольше 0,8 с, чтобы шапка не стояла пустой на медленной сети
+Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 800))]).then(drawPattern);
 const tickReply = () => { $('#reply').textContent = replyText(); };
 tickReply(); setInterval(tickReply, 60e3);
 </script>
